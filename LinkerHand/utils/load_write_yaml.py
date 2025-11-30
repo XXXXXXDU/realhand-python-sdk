@@ -12,7 +12,7 @@ symbol_custom_string_obkorol_copyright:
 import yaml, os, sys
 class LoadWriteYaml():
     def __init__(self):
-        # 由于是API形式，这里要给配置文件目录绝对路径
+        # Since this is used as an API, we need to give the absolute path of the config directory
         #yaml_path = "/home/linkerhand/ROS2/linker_hand_ros2_sdk/src/linker_hand_ros2_sdk/linker_hand_ros2_sdk/LinkerHand"
         yaml_path = os.path.dirname(os.path.abspath(__file__)) + "/../../LinkerHand"
         self.setting_path = yaml_path+"/config/setting.yaml"
@@ -64,7 +64,7 @@ class LoadWriteYaml():
                     self.action_yaml = yaml_data["RIGHT_HAND"]
         except Exception as e:
             self.action_yaml = None
-            print(f"yaml配置文件不存在: {e}")
+            print(f"yaml config file does not exist: {e}")
         return self.action_yaml 
 
     def write_to_yaml(self, action_name, action_pos,hand_joint="",hand_type=""):
@@ -98,4 +98,3 @@ class LoadWriteYaml():
             a = False
             print(f"Error writing to yaml file: {e}")
         return a
-        

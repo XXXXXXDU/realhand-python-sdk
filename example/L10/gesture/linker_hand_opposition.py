@@ -8,33 +8,33 @@ from LinkerHand.utils.load_write_yaml import LoadWriteYaml
 from LinkerHand.utils.init_linker_hand import InitLinkerHand
 from LinkerHand.utils.color_msg import ColorMsg
 '''
-拇指与其他手指循环对指
+Cyclic thumb opposition with other fingers
 '''
 def main():
-    parser = argparse.ArgumentParser(description='处理手势参数')
-    parser.add_argument('--hand_type', choices=['left', 'right'], required=True, help='指定左手或右手')
-    parser.add_argument('--hand_joint', required=True, help='指定LinkerHand型号')
-    parser.add_argument('--can', default="can0", help='指定CAN编号')
+    parser = argparse.ArgumentParser(description='Process gesture parameters')
+    parser.add_argument('--hand_type', choices=['left', 'right'], required=True, help='Specify left or right hand')
+    parser.add_argument('--hand_joint', required=True, help='Specify LinkerHand model')
+    parser.add_argument('--can', default="can0", help='Specify CAN ID')
     args = parser.parse_args()
-    print(f"手类型: {args.hand_type}, 关节: {args.hand_joint}")
+    print(f"Hand Type: {args.hand_type}, Joint: {args.hand_joint}")
 
     hand_joint = args.hand_joint
     hand_type = args.hand_type
     can = args.can
     hand = LinkerHandApi(hand_joint=hand_joint,hand_type=hand_type, can=can)
-    # 设置速度
+    # Set speed
     hand.set_speed(speed=[100,80,80,80,80])
-    # 手指姿态数据
+    # Finger pose data
     poses = [
-        [255.0,70.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0], # 手掌张开
-        [135.0,128.0,146.0,255.0,255.0,255.0,255.0,255.0,255.0,80.0], # 拇指对食指
-        [255.0,70.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0], # 手掌张开
-        [135.0,88.0,255.0,138.0,255.0,255.0,255.0,255.0,255.0,65.0], # 拇指对中指
-        [255.0,70.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0], # 手掌张开
-        [135.0,63.0,255.0,255.0,140.0,255.0,255.0,255.0,255.0,40.0], # 拇指对无名指
-        [255.0,70.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0], # 手掌张开
-        [137.0,70.0,255.0,255.0,255.0,131.0,255.0,255.0,120.0,15.0], # 拇指对小拇指
-        [255.0,70.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0], # 手掌张开
+        [255.0,70.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0], # Palm open
+        [135.0,128.0,146.0,255.0,255.0,255.0,255.0,255.0,255.0,80.0], # Thumb touches index finger
+        [255.0,70.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0], # Palm open
+        [135.0,88.0,255.0,138.0,255.0,255.0,255.0,255.0,255.0,65.0], # Thumb touches middle finger
+        [255.0,70.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0], # Palm open
+        [135.0,63.0,255.0,255.0,140.0,255.0,255.0,255.0,255.0,40.0], # Thumb touches ring finger
+        [255.0,70.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0], # Palm open
+        [137.0,70.0,255.0,255.0,255.0,131.0,255.0,255.0,120.0,15.0], # Thumb touches pinky finger
+        [255.0,70.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0,255.0], # Palm open
     ]
     while True:
         for pose in poses:

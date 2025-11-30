@@ -18,10 +18,10 @@ class InitLinkerHand():
 
     def current_hand(self):
         '''
-        初始化灵巧手
+        Initialize Linker Hand
         return: hand_joint str L7/L10/L20/L21/L25, hand_type str left or right
         '''
-        # 左手是否配置
+        # Check if left hand is configured
         self.left_hand = None
         self.left_hand_joint = None
         self.left_hand_type = None
@@ -29,7 +29,7 @@ class InitLinkerHand():
         self.left_hand_pose = None
         self.left_hand_torque = [200, 200, 200, 200, 200]
         self.left_hand_speed = [80, 200, 200, 200, 200]
-        # 右手是否配置
+        # Check if right hand is configured
         self.right_hand = None
         self.right_hand_joint = None
         self.right_hand_type = None
@@ -55,7 +55,7 @@ class InitLinkerHand():
                 self.left_hand_pose = [75, 255, 255, 255, 255, 176, 97, 81, 114, 147, 202, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255]
             elif self.left_hand_joint == "L25":
                 self.left_hand_pose = [75, 255, 255, 255, 255, 176, 97, 81, 114, 147, 202, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255]
-        # 判断右手是否配置 
+        # Determine if right hand is configured
         if self.setting['LINKER_HAND']['RIGHT_HAND']['EXISTS'] == True:
             self.right_hand = True
             self.right_hand_joint = self.setting['LINKER_HAND']['RIGHT_HAND']['JOINT']
@@ -77,5 +77,3 @@ class InitLinkerHand():
 
 
         return self.left_hand ,self.left_hand_joint ,self.left_hand_type ,self.left_hand_force,self.left_hand_pose, self.left_hand_torque, self.left_hand_speed ,self.right_hand ,self.right_hand_joint ,self.right_hand_type ,self.right_hand_force,self.right_hand_pose, self.right_hand_torque, self.right_hand_speed,self.setting
-
-        

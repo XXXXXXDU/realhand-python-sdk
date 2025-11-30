@@ -8,7 +8,7 @@ from PyQt5.QtCore import Qt
 
 XML_PATH = "urdf/linker_hand_l10_left/linker_hand_l10_left.xml"
 
-# --- 加载模型 ---
+# --- Load model ---
 model = mujoco.MjModel.from_xml_path(XML_PATH)
 data = mujoco.MjData(model)
 data.qpos[:] = 0
@@ -19,10 +19,10 @@ mujoco.mj_forward(model, data)
 joint_count = model.nu
 ctrl_values = np.zeros(joint_count)
 
-# 获取 actuator 控制范围（注意：actuator 不是 joint 本体）
+# Get actuator control ranges (note: actuators are not the joints themselves)
 ctrl_ranges = model.actuator_ctrlrange.copy()
 
-# 关节名称映射（根据你的模型调整）
+# Joint name mapping (adjust according to your model)
 joint_names = [
     "thumb_joint0", "thumb_joint1", "thumb_joint2", "thumb_joint3", "thumb_joint4",
     "index_joint0", "index_joint1", "index_joint2", "index_joint3",
@@ -31,39 +31,39 @@ joint_names = [
     "little_joint0", "little_joint1", "little_joint2", "little_joint3"
 ]
 
-# --- MuJoCo 模拟线程 ---
+# --- MuJoCo simulation thread ---
 def mujoco_thread():
     with mujoco.viewer.launch_passive(model, data) as viewer:
         print("MuJoCo viewer running...")
         last_print_time = time.time()
         
         while viewer.is_running():
-            # 设置控制信号并执行仿真步
+            # Set control signal and step the simulation
             data.ctrl[:] = ctrl_values
             mujoco.mj_step(model, data)
             viewer.sync()
             
-            # 每秒打印一次关节数据（避免刷屏）
+            # Print joint data periodically (to avoid spamming)
             current_time = time.time()
             if current_time - last_print_time >= 0.01:
                 print_joint_data()
                 last_print_time = current_time
 
 def print_joint_data():
-    """打印所有关节的实时状态"""
+    """Print real-time state of all joints"""
     print("\n" + "=" * 80)
     print(f"Time: {data.time:.2f}s")
     print("=" * 80)
     
     for i in range(model.njnt):
         jnt_name = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_JOINT, i)
-        if jnt_name not in joint_names:  # 只打印手指关节
+        if jnt_name not in joint_names:  # Only print finger joints
             continue
             
         qpos_adr = model.jnt_qposadr[i]
         qvel_adr = model.jnt_dofadr[i]
         
-        # 获取关节数据
+        # Get joint data
         pos = data.qpos[qpos_adr]
         vel = data.qvel[qvel_adr] if qvel_adr != -1 else 0
         torque = data.qfrc_actuator[qvel_adr] if qvel_adr != -1 else 0
@@ -74,7 +74,7 @@ def print_joint_data():
         print(f"  Torque: {torque:.4f} N·m")
         print("-" * 40)
 
-# --- GUI 控制窗口 ---
+# --- GUI control window ---
 class ControlWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -104,14 +104,14 @@ class ControlWindow(QWidget):
             ctrl_values[index] = value / 100.0
         return callback
 
-# --- 主函数 ---
+# --- Main function ---
 if __name__ == "__main__":
-    # 启动 MuJoCo 模拟线程
+    # Start MuJoCo simulation thread
     sim_thread = threading.Thread(target=mujoco_thread)
-    sim_thread.daemon = True  # 主线程退出时自动结束
+    sim_thread.daemon = True  # Automatically exit when the main thread exits
     sim_thread.start()
 
-    # 启动 GUI（主线程）
+    # Start GUI (main thread)
     app = QApplication(sys.argv)
     window = ControlWindow()
     window.show()

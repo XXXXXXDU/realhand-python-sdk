@@ -7,28 +7,31 @@ import argparse
 from LinkerHand.linker_hand_api import LinkerHandApi
 
 '''
-动态抓取示例，通过动态设置抓取物品直径参数，实现抓取不同直径大小的物品
-命令行参数：
---hand_joint: 手指关节类型(L10或L25)
---hand_type: 左手还是右手(left或right)
---speed: 速度设置(0~255)
---mm: 抓取物品直径大小(mm)
-示例：
+Dynamic grasping example.
+By dynamically setting the object diameter parameter, it achieves grasping of objects with different diameters.
+
+Command line arguments:
+--hand_joint: Finger joint type (L10 or L25)
+--hand_type: Left or right hand (left or right)
+--speed: Speed settings (0~255)
+--mm: Diameter of the object to grasp (mm)
+
+Example:
 python3 dynamic_grasping.py --hand_joint L10 --hand_type left --speed 20 50 50 50 50 --mm 30
 '''
 
 def main(args):
-    # 初始化API
+    # Initialize API
     hand = LinkerHandApi(hand_joint=args.hand_joint,hand_type=args.hand_type)
-    # 设置速度
+    # Set speed
     hand.set_speed(speed=args.speed)
-    # 准备抓握姿态
+    # Prepare grasping pose
     pose = [255, 70, 255, 255, 255, 255, 255, 255, 255, 120]
     hand.finger_move(pose=pose)
     time.sleep(2)
-    # 握拳，抓取0mm物品坐标
+    # Make a fist, grasp 0mm object coordinates
     # pose = [60, 70, 25, 25, 25, 25, 25, 255, 255, 88]
-    # 动态设置坐标
+    # Dynamically set coordinates
     i = args.mm * 2
     pose[0] = 60 + i
     pose[1] = 60

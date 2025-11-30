@@ -32,7 +32,7 @@ class GetState:
         time.sleep(0.01)
         ColorMsg(msg=f"Set position: {self.position}", color='green')
             
-    # 获取当前状态
+    # Get current state
     def get_state(self):
         state = self.hand.get_state()
         print(f"Current state: {state}")
@@ -41,14 +41,14 @@ class GetState:
 if __name__ == "__main__":
     # python3 get_set_state.py --hand_joint L10 --hand_type right --position 100 123 211 121 222 255 255 255 255 255
     parser = argparse.ArgumentParser(description='GetSpeed Example')
-    parser.add_argument('--hand_joint', type=str, default='L10',required=True, help='手指关节类型，默认是L10')
-    parser.add_argument('--hand_type', type=str, default='left',required=True, help='手的类型，默认是左手')
+    parser.add_argument('--hand_joint', type=str, default='L10',required=True, help='Finger joint type, default is L10')
+    parser.add_argument('--hand_type', type=str, default='left',required=True, help='Hand type, default is left')
     parser.add_argument('--position', 
-                   nargs='+',  # 接收5个参数
+                   nargs='+',  # Receives parameters
                    type=int, 
                    default=[180]*10,
                    required=True,
-                   help='不同灵巧手的手指位置参数个数不同，L7是5个，L10是10个，L20是20个，L25是25个')
+                   help='The number of finger position parameters varies by hand model: L7 has 5, L10 has 10, L20 has 20, L25 has 25')
 
     args = parser.parse_args()
     GetState(hand_joint=args.hand_joint,hand_type=args.hand_type,position=args.position)

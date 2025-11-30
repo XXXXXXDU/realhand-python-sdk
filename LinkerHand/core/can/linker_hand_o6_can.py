@@ -13,13 +13,13 @@ class LinkerHandO6Can:
         self.baudrate = baudrate
         self.open_can = OpenCan(load_yaml=yaml)
 
-        self.x01 = [0] * 6 # 关节位置
-        self.x02 = [-1] * 6 # 转矩限制
-        self.x05 = [0] * 6 # 速度
-        self.x07 = [-1] * 6 # 加速度
-        self.x33 = [0] * 6 # 温度
-        self.x35 = [0] * 6 # 关节错误码
-        self.x36 = [-1] * 6 # 电流
+        self.x01 = [0] * 6 # Joint position
+        self.x02 = [-1] * 6 # Torque limit
+        self.x05 = [0] * 6 # Speed
+        self.x07 = [-1] * 6 # Acceleration
+        self.x33 = [0] * 6 # Temperature
+        self.x35 = [0] * 6 # Joint error codes
+        self.x36 = [-1] * 6 # Current
         self.xb0,self.xb1,self.xb2,self.xb3,self.xb4,self.xb5 = [-1] * 5,[-1] * 5,[-1] * 5,[-1] * 5,[-1] * 5,[-1] * 5
         self.thumb_matrix = np.full((12, 6), -1)
         self.index_matrix = np.full((12, 6), -1)
@@ -176,7 +176,7 @@ class LinkerHandO6Can:
                 self.x33 = list(response_data)
             elif frame_type == 0x35: # O6 fault codes
                 self.x35 = list(response_data)
-            elif frame_type == 0x36: # O6 电流
+            elif frame_type == 0x36: # O6 Current
                 self.x36 = list(response_data)
             elif frame_type == 0xb0:
                 self.xb0 = list(response_data)
@@ -243,7 +243,7 @@ class LinkerHandO6Can:
 
     def get_speed(self):
         #self.send_frame(0x05, [],sleep=0.003)
-        #print("L6暂不支持读取实时速度")
+        #print("L6 does not support reading real-time speed currently")
         return [0] * 6
 
     def get_current(self):

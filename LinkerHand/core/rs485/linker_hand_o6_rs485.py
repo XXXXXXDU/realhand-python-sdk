@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-O6 机械手 Modbus-RTU 控制类 (基于 pymodbus 3.5.1)
+O6 robotic hand Modbus-RTU control class (based on pymodbus 3.5.1)
 """
 
 import os
 import time
-from typing import List, Dict, Any # 引入 Any 来表示灵活的输入类型
+from typing import List, Dict, Any # introduce Any to represent flexible input types
 import numpy as np
 import logging
-from threading import Lock # 用于线程安全和总线仲裁
+from threading import Lock # used for thread safety and bus arbitration
 
-# 导入 pymodbus 客户端
+# Import pymodbus client
 from pymodbus.client import ModbusSerialClient
 from struct import error as StructError 
 
@@ -21,73 +21,73 @@ logging.basicConfig(
 )
 
 # ------------------------------------------------------------------
-# 读输入寄存器地址枚举（功能码 04，只读）- 保持原样
+# Input register address enumeration (function code 04, read-only) - keep unchanged
 # ------------------------------------------------------------------
-REG_RD_CURRENT_THUMB_PITCH      = 0   # 大拇指弯曲角度（0-255，小=弯，大=伸）
-REG_RD_CURRENT_THUMB_YAW        = 1   # 大拇指横摆角度（0-255，小=靠掌心，大=远离）
-REG_RD_CURRENT_INDEX_PITCH      = 2   # 食指弯曲角度
-REG_RD_CURRENT_MIDDLE_PITCH     = 3   # 中指弯曲角度
-REG_RD_CURRENT_RING_PITCH       = 4   # 无名指弯曲角度
-REG_RD_CURRENT_LITTLE_PITCH     = 5   # 小拇指弯曲角度
-REG_RD_CURRENT_THUMB_TORQUE     = 6   # 大拇指弯曲转矩（0-255）
-REG_RD_CURRENT_THUMB_YAW_TORQUE = 7   # 大拇指横摆转矩
-REG_RD_CURRENT_INDEX_TORQUE     = 8   # 食指转矩
-REG_RD_CURRENT_MIDDLE_TORQUE    = 9   # 中指转矩
-REG_RD_CURRENT_RING_TORQUE      = 10  # 无名指转矩
-REG_RD_CURRENT_LITTLE_TORQUE    = 11  # 小拇指转矩
-REG_RD_CURRENT_THUMB_SPEED      = 12  # 大拇指弯曲速度（0-255）
-REG_RD_CURRENT_THUMB_YAW_SPEED  = 13  # 大拇指横摆速度
-REG_RD_CURRENT_INDEX_SPEED      = 14  # 食指速度
-REG_RD_CURRENT_MIDDLE_SPEED     = 15  # 中指速度
-REG_RD_CURRENT_RING_SPEED       = 16  # 无名指速度
-REG_RD_CURRENT_LITTLE_SPEED     = 17  # 小拇指速度
-REG_RD_THUMB_TEMP               = 18  # 大拇指弯曲温度（0-70℃）
-REG_RD_THUMB_YAW_TEMP           = 19  # 大拇指横摆温度
-REG_RD_INDEX_TEMP               = 20  # 食指温度
-REG_RD_MIDDLE_TEMP              = 21  # 中指温度
-REG_RD_RING_TEMP                = 22  # 无名指温度
-REG_RD_LITTLE_TEMP              = 23  # 小拇指温度
-REG_RD_THUMB_ERROR              = 24  # 大拇指错误码
-REG_RD_THUMB_YAW_ERROR          = 25  # 大拇指横摆错误码
-REG_RD_INDEX_ERROR              = 26  # 食指错误码
-REG_RD_MIDDLE_ERROR             = 27  # 中指错误码
-REG_RD_RING_ERROR               = 28  # 无名指错误码
-REG_RD_LITTLE_ERROR             = 29  # 小拇指错误码
-REG_RD_HAND_FREEDOM             = 30  # 版本号（与机械手标签相同）
-REG_RD_HAND_VERSION             = 31  # 手版本
-REG_RD_HAND_NUMBER              = 32  # 手编号
-REG_RD_HAND_DIRECTION           = 33  # 手方向（左/右）
-REG_RD_SOFTWARE_VERSION         = 34  # 软件版本
-REG_RD_HARDWARE_VERSION         = 35  # 硬件版本
+REG_RD_CURRENT_THUMB_PITCH      = 0   # Thumb flexion angle (0-255, small=bent, large=extended)
+REG_RD_CURRENT_THUMB_YAW        = 1   # Thumb yaw angle (0-255, small=close to palm, large=away)
+REG_RD_CURRENT_INDEX_PITCH      = 2   # Index finger flexion angle
+REG_RD_CURRENT_MIDDLE_PITCH     = 3   # Middle finger flexion angle
+REG_RD_CURRENT_RING_PITCH       = 4   # Ring finger flexion angle
+REG_RD_CURRENT_LITTLE_PITCH     = 5   # Little finger flexion angle
+REG_RD_CURRENT_THUMB_TORQUE     = 6   # Thumb flexion torque (0-255)
+REG_RD_CURRENT_THUMB_YAW_TORQUE = 7   # Thumb yaw torque
+REG_RD_CURRENT_INDEX_TORQUE     = 8   # Index finger torque
+REG_RD_CURRENT_MIDDLE_TORQUE    = 9   # Middle finger torque
+REG_RD_CURRENT_RING_TORQUE      = 10  # Ring finger torque
+REG_RD_CURRENT_LITTLE_TORQUE    = 11  # Little finger torque
+REG_RD_CURRENT_THUMB_SPEED      = 12  # Thumb flexion speed (0-255)
+REG_RD_CURRENT_THUMB_YAW_SPEED  = 13  # Thumb yaw speed
+REG_RD_CURRENT_INDEX_SPEED      = 14  # Index finger speed
+REG_RD_CURRENT_MIDDLE_SPEED     = 15  # Middle finger speed
+REG_RD_CURRENT_RING_SPEED       = 16  # Ring finger speed
+REG_RD_CURRENT_LITTLE_SPEED     = 17  # Little finger speed
+REG_RD_THUMB_TEMP               = 18  # Thumb flexion temperature (0-70℃)
+REG_RD_THUMB_YAW_TEMP           = 19  # Thumb yaw temperature
+REG_RD_INDEX_TEMP               = 20  # Index finger temperature
+REG_RD_MIDDLE_TEMP              = 21  # Middle finger temperature
+REG_RD_RING_TEMP                = 22  # Ring finger temperature
+REG_RD_LITTLE_TEMP              = 23  # Little finger temperature
+REG_RD_THUMB_ERROR              = 24  # Thumb error code
+REG_RD_THUMB_YAW_ERROR          = 25  # Thumb yaw error code
+REG_RD_INDEX_ERROR              = 26  # Index finger error code
+REG_RD_MIDDLE_ERROR             = 27  # Middle finger error code
+REG_RD_RING_ERROR               = 28  # Ring finger error code
+REG_RD_LITTLE_ERROR             = 29  # Little finger error code
+REG_RD_HAND_FREEDOM             = 30  # Degrees of freedom (same as hand label)
+REG_RD_HAND_VERSION             = 31  # Hand version
+REG_RD_HAND_NUMBER              = 32  # Hand number
+REG_RD_HAND_DIRECTION           = 33  # Hand direction (left/right)
+REG_RD_SOFTWARE_VERSION         = 34  # Software version
+REG_RD_HARDWARE_VERSION         = 35  # Hardware version
 
 
 # ------------------------------------------------------------------
-# 写保持寄存器地址枚举（功能码 16，读写）- 保持原样
+# Write holding register address enumeration (function code 16, read/write) - keep unchanged
 # ------------------------------------------------------------------
-REG_WR_THUMB_PITCH      = 0   # 大拇指弯曲角度（0-255）
-REG_WR_THUMB_YAW        = 1   # 大拇指横摆角度
-REG_WR_INDEX_PITCH      = 2   # 食指弯曲角度
-REG_WR_MIDDLE_PITCH     = 3   # 中指弯曲角度
-REG_WR_RING_PITCH       = 4   # 无名指弯曲角度
-REG_WR_LITTLE_PITCH     = 5   # 小拇指弯曲角度
-REG_WR_THUMB_TORQUE     = 6   # 大拇指弯曲转矩
-REG_WR_THUMB_YAW_TORQUE = 7   # 大拇指横摆转矩
-REG_WR_INDEX_TORQUE     = 8   # 食指转矩
-REG_WR_MIDDLE_TORQUE    = 9   # 中指转矩
-REG_WR_RING_TORQUE      = 10  # 无名指转矩
-REG_WR_LITTLE_TORQUE    = 11  # 小拇指转矩
-REG_WR_THUMB_SPEED      = 12  # 大拇指弯曲速度
-REG_WR_THUMB_YAW_SPEED  = 13  # 大拇指横摆速度
-REG_WR_INDEX_SPEED      = 14  # 食指速度
-REG_WR_MIDDLE_SPEED     = 15  # 中指速度
-REG_WR_RING_SPEED       = 16  # 无名指速度
-REG_WR_LITTLE_SPEED     = 17  # 小拇指速度
+REG_WR_THUMB_PITCH      = 0   # Thumb flexion angle (0-255)
+REG_WR_THUMB_YAW        = 1   # Thumb yaw angle
+REG_WR_INDEX_PITCH      = 2   # Index finger flexion angle
+REG_WR_MIDDLE_PITCH     = 3   # Middle finger flexion angle
+REG_WR_RING_PITCH       = 4   # Ring finger flexion angle
+REG_WR_LITTLE_PITCH     = 5   # Little finger flexion angle
+REG_WR_THUMB_TORQUE     = 6   # Thumb flexion torque
+REG_WR_THUMB_YAW_TORQUE = 7   # Thumb yaw torque
+REG_WR_INDEX_TORQUE     = 8   # Index finger torque
+REG_WR_MIDDLE_TORQUE    = 9   # Middle finger torque
+REG_WR_RING_TORQUE      = 10  # Ring finger torque
+REG_WR_LITTLE_TORQUE    = 11  # Little finger torque
+REG_WR_THUMB_SPEED      = 12  # Thumb flexion speed
+REG_WR_THUMB_YAW_SPEED  = 13  # Thumb yaw speed
+REG_WR_INDEX_SPEED      = 14  # Index finger speed
+REG_WR_MIDDLE_SPEED     = 15  # Middle finger speed
+REG_WR_RING_SPEED       = 16  # Ring finger speed
+REG_WR_LITTLE_SPEED     = 17  # Little finger speed
 
 
 class LinkerHandO6RS485:
-    """O6 机械手 Modbus-RTU 控制类，使用 pymodbus 3.5.1"""
+    """O6 robotic hand Modbus-RTU control class, using pymodbus 3.5.1"""
 
-    TTL_TIMEOUT = 0.15     # 串口超时
+    TTL_TIMEOUT = 0.15     # Serial timeout
     FRAME_GAP = 0.030      # 30 ms
     
     # KEYS for easy indexing
@@ -96,10 +96,10 @@ class LinkerHandO6RS485:
 
     def __init__(self, hand_id=0x27, modbus_port="/dev/ttyUSB0", baudrate=115200):
         self._id = hand_id
-        self._last_ts = 0.0  # 上一次帧结束时间
-        self._lock = Lock()  # 总线访问锁
+        self._last_ts = 0.0  # Last frame end time
+        self._lock = Lock()  # Bus access lock
 
-        # 使用 pymodbus 3.x 客户端
+        # Use pymodbus 3.x client
         self.cli = ModbusSerialClient(
             port=modbus_port,
             baudrate=baudrate,
@@ -121,17 +121,17 @@ class LinkerHandO6RS485:
             raise
 
     # ----------------------------------------------------------
-    # 辅助方法
+    # Helper methods
     # ----------------------------------------------------------
     def _bus_free(self):
-        """保证距离上一帧 ≥ 30 ms"""
+        """Ensure interval from last frame ≥ 30 ms"""
         with self._lock:
             elapse = time.perf_counter() - self._last_ts
             if elapse < self.FRAME_GAP:
                 time.sleep(self.FRAME_GAP - elapse)
 
     def _execute_read(self, address: int, count: int) -> List[int]:
-        """执行 Modbus 读取操作 (功能码 04), 带总线仲裁。"""
+        """Execute Modbus read operation (function code 04) with bus arbitration."""
         self._bus_free()
         
         rsp = self.cli.read_input_registers(
@@ -145,14 +145,14 @@ class LinkerHandO6RS485:
         if rsp.isError():
             raise RuntimeError(f"Modbus Read Failed (Addr={address}, Count={count}): {rsp}")
         
-        # 确保返回的值是 Python 原生整数
+        # Ensure the returned values are native Python integers
         return [int(reg) for reg in rsp.registers]
 
     def _execute_write(self, address: int, values: List[int]):
-        """执行 Modbus 批量写入操作 (功能码 16), 带总线仲裁。"""
+        """Execute Modbus batch write operation (function code 16) with bus arbitration."""
         self._bus_free()
         
-        # values 必须是 Python 原生整数列表
+        # values must be a list of native Python integers
         rsp = self.cli.write_registers(
             address=address, 
             values=values, 
@@ -165,7 +165,7 @@ class LinkerHandO6RS485:
             raise RuntimeError(f"Modbus Write Failed (Addr={address}, Values={values}): {rsp}")
 
     # ----------------------------------------------------------
-    # 批量读取和数据封装（优化通信效率）
+    # Batch reading and data packaging (optimize communication efficiency)
     # ----------------------------------------------------------
     def read_all_angles(self) -> List[int]:
         return self._execute_read(REG_RD_CURRENT_THUMB_PITCH, 6)
@@ -187,10 +187,10 @@ class LinkerHandO6RS485:
 
 
     # ----------------------------------------------------------
-    # 只读属性（单个寄存器读取）
+    # Read-only properties (single register read)
     # ----------------------------------------------------------
     def _read_reg(self, addr: int) -> int:
-        """读单个输入寄存器（功能码 04），带 30 ms 帧间隔"""
+        """Read single input register (function code 04) with 30 ms frame interval"""
         return self._execute_read(addr, 1)[0]
     
     def get_thumb_pitch(self) -> int:       return self._read_reg(REG_RD_CURRENT_THUMB_PITCH)
@@ -236,49 +236,49 @@ class LinkerHandO6RS485:
     def get_hardware_version(self) -> int:  return self._read_reg(REG_RD_HARDWARE_VERSION)
     
     # ----------------------------------------------------------
-    # 批量 Getter (使用 read_all_... 方法)
+    # Batch getters (using read_all_... methods)
     # ----------------------------------------------------------
     def get_state(self) -> List[int]:
-        """获取手指电机状态 (角度)"""
+        """Get finger motor state (angles)"""
         return self.read_all_angles()
 
     def get_torque(self) -> List[int]:
-        """获取当前扭矩"""
+        """Get current torque"""
         return self.read_all_torques()
 
     def get_speed(self) -> List[int]:
-        """获取当前速度"""
+        """Get current speed"""
         return self.read_all_speeds()
 
     def get_temperature(self) -> List[int]:
-        """获取当前电机温度"""
+        """Get current motor temperature"""
         return self.read_all_temperatures()
     
     def get_fault(self) -> List[int]:
-        """获取当前电机故障码"""
+        """Get current motor fault codes"""
         return self.read_all_errors()
     
     def get_version(self) -> list:
-        """获取当前固件版本号"""
+        """Get current firmware version numbers"""
         return self.read_all_versions()
 
 
     # ----------------------------------------------------------
-    # 写保持寄存器 (单个寄存器写入)
+    # Write holding registers (single register write)
     # ----------------------------------------------------------
     def _write_reg(self, addr: int, value: int):
-        """写单个保持寄存器（功能码 16），带 30 ms 帧间隔"""
+        """Write single holding register (function code 16) with 30 ms frame interval"""
         if not 0 <= value <= 255:
             raise ValueError("value must be 0-255")
         
-        # 确保 value 是 Python 原生 int
+        # Ensure value is a native Python int
         self._execute_write(addr, [int(value)])
 
     def _write_regs(self, addr: int, values: List[int]):
-        """写多个保持寄存器（功能码 16），带 30 ms 帧间隔"""
-        # 此时 values 应该已经是经过 is_valid_6xuint8 验证并转换的 Python int 列表
+        """Write multiple holding registers (function code 16) with 30 ms frame interval"""
+        # At this point values should already be validated by is_valid_6xuint8 and converted to Python ints
         if not all(0 <= v <= 255 for v in values):
-            # 这行理论上不应触发，因为上层调用已校验
+            # This should theoretically not trigger because the upper-level call has validated
             raise ValueError("All values must be 0-255")
         self._execute_write(addr, values)
 
@@ -305,24 +305,24 @@ class LinkerHandO6RS485:
     def set_little_speed(self, v: int):          self._write_reg(REG_WR_LITTLE_SPEED, v)
 
     # ----------------------------------------------------------
-    # 固定函数 (采用批量写入优化)
+    # Fixed functions (using batch write optimization)
     # ----------------------------------------------------------
     def is_valid_6xuint8(self, lst: List[Any]) -> bool:
         """
-        验证6个0-255的整数列表。
-        允许输入包含浮点数、NumPy整数等可转换为 int 的类型，并进行范围校验。
+        Validate a list of six integers between 0 and 255.
+        Allows inputs containing floats, NumPy integers, etc. that can be converted to int, with range checks.
         """
         if not (isinstance(lst, list) and len(lst) == 6):
             return False
             
         try:
-            # 关键：尝试将所有元素转换为 Python 原生 int
+            # Key: try converting all elements to native Python int
             int_values = [int(v) for v in lst]
         except (ValueError, TypeError):
-            # 转换失败，列表中包含不可转换的元素
+            # Conversion failed; list contains elements that cannot be converted
             return False
 
-        # 校验转换后的整数列表是否在 0-255 范围内
+        # Check whether converted integer list is in range 0-255
         return all(0 <= x <= 255 for x in int_values)
     
     def set_joint_positions(self, joint_angles: List[Any] = None):
@@ -332,10 +332,10 @@ class LinkerHandO6RS485:
             logging.error(f"Invalid joint angles received: {joint_angles}")
             raise ValueError("Joint angles must be a list of 6 values between 0 and 255 (convertible to int).")
 
-        # 强制转换为 Modbus 兼容的 Python 原生 int 列表
+        # Force conversion to Modbus-compatible native Python int list
         int_angles = [int(v) for v in joint_angles] 
         
-        # 批量写入 6 个角度寄存器 (从 REG_WR_THUMB_PITCH 地址 0 开始, count=6)
+        # Batch write 6 angle registers (starting from REG_WR_THUMB_PITCH address 0, count=6)
         self._write_regs(REG_WR_THUMB_PITCH, int_angles)
 
     def set_speed(self, speed: List[Any] = None):
@@ -356,10 +356,10 @@ class LinkerHandO6RS485:
         int_torque = [int(v) for v in torque]
         self._write_regs(REG_WR_THUMB_TORQUE, int_torque)
 
-    # ... (其他固定函数保持不变) ...
+    # ... (other fixed functions remain unchanged) ...
 
     def set_current(self, current: List[int] = None):
-        print("当前O6不支持设置电流", flush=True)
+        print("Current O6 does not support setting current", flush=True)
         pass
 
     def get_state_for_pub(self) -> list:
@@ -413,7 +413,7 @@ class LinkerHandO6RS485:
         return self.get_matrix_touch()
     
     # ----------------------------------------------------------
-    # 上下文管理
+    # Context management
     # ----------------------------------------------------------
     def close(self):
         if hasattr(self, 'connected') and self.connected:
@@ -428,11 +428,11 @@ class LinkerHandO6RS485:
         self.close()
 
     # ----------------------------------------------------------
-    # 便捷函数
+    # Convenience functions
     # ----------------------------------------------------------
     def set_all_fingers(self, pitch: int):
-        """同时设置五指弯曲角度（0-255），使用批量写入"""
-        # 允许传入 float/numpy int 等可转换为 int 的类型
+        """Set flexion angle (0-255) of all five fingers at the same time using batch write"""
+        # Allow passing float/numpy int, etc. that can be converted to int
         try:
             pitch_int = int(pitch)
         except (ValueError, TypeError):
@@ -441,19 +441,19 @@ class LinkerHandO6RS485:
         if not 0 <= pitch_int <= 255:
             raise ValueError("Pitch value must be 0-255")
         
-        # 批量设置所有 6 个关节的角度
+        # Batch set the angles of all 6 joints
         self.set_joint_positions([pitch_int] * 6)
 
     def relax(self):
-        """全部手指伸直（255）"""
+        """Extend all fingers (255)"""
         self.set_all_fingers(255)
 
     def fist(self):
-        """全部手指弯曲（0）"""
+        """Flex all fingers (0)"""
         self.set_all_fingers(0)
 
     def dump_status(self):
-        """打印当前所有可读状态 (使用批量读取优化)"""
+        """Print all current readable states (using batch read optimization)"""
         print("--------- O6 Hand Status ---------")
         
         angles = self.get_state()
@@ -468,38 +468,38 @@ class LinkerHandO6RS485:
         print("----------------------------------")
 
 # ------------------------------------------------------------------
-# 命令行快速测试
+# Command-line quick test
 # ------------------------------------------------------------------
 if __name__ == "__main__":
     import argparse
     
-    # 假设默认站号是 0x27 (39)
+    # Assume default station ID is 0x27 (39)
     DEFAULT_HAND_ID = 0x27
 
     parser = argparse.ArgumentParser(description="O6 Hand Modbus tester (using pymodbus 3.5.1)")
-    parser.add_argument("-p", "--port", required=True, help="串口, 如 /dev/ttyUSB0")
-    parser.add_argument("-l", "--left", action="store_const", const=0x28, default=DEFAULT_HAND_ID, dest='hand_id', help="左手 (0x28)，默认右手 (0x27)")
+    parser.add_argument("-p", "--port", required=True, help="Serial port, e.g. /dev/ttyUSB0")
+    parser.add_argument("-l", "--left", action="store_const", const=0x28, default=DEFAULT_HAND_ID, dest='hand_id', help="Left hand (0x28), default right hand (0x27)")
     
     args = parser.parse_args()
 
     try:
-        # 使用 with 语句确保连接关闭，这是 pymodbus 的推荐用法
+        # Use with-statement to ensure connection closure, which is recommended by pymodbus
         with LinkerHandO6RS485(hand_id=args.hand_id, modbus_port=args.port, baudrate=115200) as hand:
             hand.dump_status()
-            print("执行 relax → 伸直")
+            print("Executing relax → extend")
             hand.relax()
             time.sleep(1)
-            print("执行 fist → 握拳")
+            print("Executing fist → make fist")
             hand.fist()
             time.sleep(1)
             hand.relax()
-            print("演示完成")
+            print("Demo finished")
             
     except ConnectionError as e:
-        print(f"连接错误: {e}")
+        print(f"Connection error: {e}")
     except RuntimeError as e:
-        print(f"Modbus 运行时错误: {e}")
+        print(f"Modbus runtime error: {e}")
     except StructError as e:
-        print(f"数据结构错误 (请检查输入数据类型是否为原生int): {e}")
+        print(f"Data structure error (please check whether input data type is native int): {e}")
     except Exception as e:
-        print(f"发生其他错误: {e}")
+        print(f"Other error occurred: {e}")

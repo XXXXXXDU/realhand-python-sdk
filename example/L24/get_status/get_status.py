@@ -11,18 +11,18 @@ from LinkerHand.utils.color_msg import ColorMsg
 
 class GetState:
     def __init__(self):
-        # 验证当前LinkerHand配置
+        # Verify current LinkerHand configuration
         init_hand = InitLinkerHand()
-        # 获取当前LinkerHand信息
+        # Get current LinkerHand information
         left_hand ,left_hand_joint ,left_hand_type ,left_hand_force,left_hand_pose, left_hand_torque, left_hand_speed ,right_hand ,right_hand_joint ,right_hand_type ,right_hand_force,right_hand_pose, right_hand_torque, right_hand_speed,setting = init_hand.current_hand()
         if left_hand_joint != False and left_hand_type != False:
-            # 初始化API
+            # Initialize API
             self.hand = LinkerHandApi(hand_joint=left_hand_joint,hand_type=left_hand_type)
         if right_hand_joint != False and right_hand_type != False:
-            # 初始化API
+            # Initialize API
             self.hand = LinkerHandApi(hand_joint=right_hand_joint,hand_type=right_hand_type)
         self.get_state()
-    # 获取当前状态
+    # Get current state
     def get_state(self):
         count = 0
         while True:

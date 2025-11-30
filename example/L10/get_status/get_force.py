@@ -22,9 +22,9 @@ class GetForce:
     def get_touch_type(self):
         t = self.hand.get_touch_type()
         if t == 2:
-            ColorMsg(msg="压感类型为矩阵式压感", color='green')
+            ColorMsg(msg="Pressure sensor type is matrix pressure sensor", color='green')
         elif t == -1:
-            ColorMsg(msg="没有压力传感器", color='red')
+            ColorMsg(msg="No pressure sensor", color='red')
         self.touch_type = t
     def get_force(self):
         for i in range(3):
@@ -34,8 +34,8 @@ class GetForce:
 if __name__ == "__main__":
     # python3 get_force.py --hand_joint L10 --hand_type right
     parser = argparse.ArgumentParser(description='GetSpeed Example')
-    parser.add_argument('--hand_joint', type=str, default='L10',required=True, help='手指关节类型，默认是L10')
-    parser.add_argument('--hand_type', type=str, default='left',required=True, help='手的类型，默认是左手')
+    parser.add_argument('--hand_joint', type=str, default='L10',required=True, help='Finger joint type, default is L10')
+    parser.add_argument('--hand_type', type=str, default='left',required=True, help='Hand type, default is left')
 
     args = parser.parse_args()
     GetForce(hand_joint=args.hand_joint,hand_type=args.hand_type)

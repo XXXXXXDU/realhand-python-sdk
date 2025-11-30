@@ -18,3 +18,5 @@ pyqtgraph
 dm_control
 uvicorn
 matplotlib
+tabulate
+sapien==2.2.1

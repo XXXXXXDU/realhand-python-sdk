@@ -5,13 +5,13 @@ target_dir = os.path.abspath(os.path.join(current_dir, "../../.."))
 sys.path.append(target_dir)
 from LinkerHand.linker_hand_api import LinkerHandApi
 '''
-手指快速移动
+Fast finger movement
 '''
 def main():
     hand = LinkerHandApi(hand_joint="L24",hand_type="right")
-    # 设置L24为使能状态
+    # Set L24 to enabled state
     hand.set_enable()
-    # 设置L24为失能状态
+    # Set L24 to disabled state
     #hand.set_disable()
     time.sleep(0.1)
     hand.set_speed(speed=180)

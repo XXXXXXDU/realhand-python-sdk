@@ -10,7 +10,7 @@ from LinkerHand.utils.load_write_yaml import LoadWriteYaml
 from LinkerHand.utils.init_linker_hand import InitLinkerHand
 from LinkerHand.utils.color_msg import ColorMsg
 '''
-目前L10没有监听当前速度的can指令，暂时不支持实时获取速度
+Currently, L10 does not listen for CAN commands for current speed, so real-time speed retrieval is temporarily not supported
 '''
 class GetSpeed:
     def __init__(self,hand_joint="L10",hand_type="left",speed=[180,180,180,180,180]):
@@ -41,14 +41,14 @@ class GetSpeed:
 if __name__ == "__main__":
     # python3 get_set_speed.py --hand_joint L10 --hand_type right --speed 100 123 211 121 222
     parser = argparse.ArgumentParser(description='GetSpeed Example')
-    parser.add_argument('--hand_joint', type=str, default='L10',required=True, help='手指关节类型，默认是L10')
-    parser.add_argument('--hand_type', type=str, default='left',required=True, help='手的类型，默认是左手')
+    parser.add_argument('--hand_joint', type=str, default='L10',required=True, help='Finger joint type, default is L10')
+    parser.add_argument('--hand_type', type=str, default='left',required=True, help='Hand type, default is left')
     parser.add_argument('--speed', 
-                   nargs=5,  # 接收5个参数
+                   nargs=5,  # Receives 5 parameters
                    type=int, 
                    default=[180]*5,
                    required=True,
-                   help='手指速度（5个整数），默认是180 180 180 180 180')
+                   help='Finger speed (5 integers), default is 180 180 180 180 180')
 
     args = parser.parse_args()
     GetSpeed(hand_joint=args.hand_joint, hand_type=args.hand_type,speed=args.speed)

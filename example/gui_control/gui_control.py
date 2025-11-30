@@ -23,10 +23,10 @@ from LinkerHand.utils.load_write_yaml import LoadWriteYaml
 from LinkerHand.utils.color_msg import ColorMsg
 
 
-LOOP_TIME = 1000 # 循环动作间隔时间 毫秒
+LOOP_TIME = 1000 # Cycle action interval in milliseconds
 
 class DotMatrixWidget(QWidget):
-    """点阵显示部件 - 白色到深红色渐变版"""
+    """Dot Matrix Display Widget - White to Dark Red Gradient Version"""
     
     def __init__(self, parent=None, rows=12, cols=6):
         super().__init__(parent)
@@ -36,34 +36,34 @@ class DotMatrixWidget(QWidget):
         self.spacing = 3
         self.data = None
         
-        # 计算部件大小 - 增加一些额外空间确保完全显示
+        # Calculate widget size - add some extra space to ensure full display
         width = cols * (self.dot_size + self.spacing) + self.spacing + 2
         height = rows * (self.dot_size + self.spacing) + self.spacing + 2
         self.setMinimumSize(width, height)
         self.setMaximumSize(width, height)
         
     def set_data(self, data):
-        """设置点阵数据"""
+        """Set dot matrix data"""
         if data is not None:
             try:
-                # 如果数据是 numpy 数组，转换为列表
+                # If data is a numpy array, convert to list
                 if hasattr(data, 'tolist'):
                     self.data = data.tolist()
                 else:
                     self.data = data
             except Exception as e:
-                print(f"转换数据时出错: {e}")
+                print(f"Error converting data: {e}")
                 self.data = None
         else:
             self.data = None
         self.update()
         
     def paintEvent(self, event):
-        """绘制点阵"""
+        """Draw dot matrix"""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         
-        # 绘制背景
+        # Draw background
         painter.fillRect(self.rect(), QColor('white'))
         
         for row in range(self.rows):
@@ -73,7 +73,7 @@ class DotMatrixWidget(QWidget):
                 
                 if self.data is not None:
                     try:
-                        # 处理 numpy 数组或普通列表
+                        # Handle numpy array or normal list
                         if hasattr(self.data, 'flatten'):
                             flat_data = self.data.flatten()
                         else:
@@ -82,43 +82,43 @@ class DotMatrixWidget(QWidget):
                         index = row * self.cols + col
                         if index < len(flat_data):
                             value = flat_data[index]
-                            # 确保 value 是标量数值
+                            # Ensure value is a scalar number
                             if hasattr(value, 'item'):
                                 value = value.item()
                                 
                             if value > 0:
-                                # 白色到深红色渐变逻辑
+                                # White to dark red gradient logic
                                 intensity = min(255, max(0, int(value)))
                                 
                                 if intensity < 128:
-                                    # 白色到浅红色渐变
+                                    # White to light red gradient
                                     red = 255
                                     green = 255 - (intensity * 55 // 128)
                                     blue = 255 - (intensity * 55 // 128)
                                     color = QColor(red, green, blue)
                                 else:
-                                    # 浅红色到深红色渐变
+                                    # Light red to dark red gradient
                                     red = 255
                                     green = 200 - ((intensity - 128) * 200 // 127)
                                     blue = 200 - ((intensity - 128) * 200 // 127)
                                     color = QColor(red, green, blue)
                             else:
-                                color = QColor('#c8c8c8')  # 默认灰色
+                                color = QColor('#c8c8c8')  # Default gray
                         else:
-                            color = QColor('#c8c8c8')  # 默认灰色
+                            color = QColor('#c8c8c8')  # Default gray
                     except Exception as e:
-                        print(f"绘制点阵时出错: {e}")
-                        color = QColor('#c8c8c8')  # 默认灰色
+                        print(f"Error drawing matrix: {e}")
+                        color = QColor('#c8c8c8')  # Default gray
                 else:
-                    color = QColor('#c8c8c8')  # 默认灰色
+                    color = QColor('#c8c8c8')  # Default gray
                 
-                # 绘制圆点
+                # Draw dots
                 painter.setBrush(QBrush(color))
                 painter.setPen(QColor('#666666'))
                 painter.drawEllipse(x, y, self.dot_size, self.dot_size)
 
 class MatrixDisplayWidget(QWidget):
-    """矩阵显示部件，包含五个手指的点阵 - 新的排列方式"""
+    """Matrix display widget, containing dot matrices for five fingers - New arrangement"""
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -126,40 +126,40 @@ class MatrixDisplayWidget(QWidget):
         self.init_ui()
         
     def init_ui(self):
-        """初始化UI - 新的排列方式"""
+        """Initialize UI - New arrangement"""
         main_layout = QVBoxLayout(self)
         main_layout.setSpacing(10)
         main_layout.setContentsMargins(5, 5, 5, 5)
         
-        # 第一行：拇指、食指、中指
+        # First row: Thumb, Index, Middle
         first_row_layout = QHBoxLayout()
         first_row_layout.setSpacing(15)
         
-        # 拇指
-        thumb_frame = self.create_finger_frame("拇指", "thumb_matrix")
+        # Thumb
+        thumb_frame = self.create_finger_frame("Thumb", "thumb_matrix")
         first_row_layout.addWidget(thumb_frame)
         
-        # 食指
-        index_frame = self.create_finger_frame("食指", "index_matrix")
+        # Index
+        index_frame = self.create_finger_frame("Index", "index_matrix")
         first_row_layout.addWidget(index_frame)
         
-        # 中指
-        middle_frame = self.create_finger_frame("中指", "middle_matrix")
+        # Middle
+        middle_frame = self.create_finger_frame("Middle", "middle_matrix")
         first_row_layout.addWidget(middle_frame)
         
         first_row_layout.addStretch()
         main_layout.addLayout(first_row_layout)
         
-        # 第二行：无名指、小指
+        # Second row: Ring, Pinky
         second_row_layout = QHBoxLayout()
         second_row_layout.setSpacing(15)
         
-        # 无名指
-        ring_frame = self.create_finger_frame("无名指", "ring_matrix")
+        # Ring
+        ring_frame = self.create_finger_frame("Ring", "ring_matrix")
         second_row_layout.addWidget(ring_frame)
         
-        # 小指
-        little_frame = self.create_finger_frame("小指", "little_matrix")
+        # Pinky
+        little_frame = self.create_finger_frame("Pinky", "little_matrix")
         second_row_layout.addWidget(little_frame)
         
         second_row_layout.addStretch()
@@ -168,19 +168,19 @@ class MatrixDisplayWidget(QWidget):
         main_layout.addStretch()
         
     def create_finger_frame(self, display_name, finger_name):
-        """创建单个手指的框架"""
+        """Create frame for a single finger"""
         finger_frame = QWidget()
         finger_layout = QVBoxLayout(finger_frame)
         finger_layout.setSpacing(5)
         finger_layout.setContentsMargins(5, 5, 5, 5)
         
-        # 手指标签 - 居中显示
+        # Finger Label - Center aligned
         label = QLabel(display_name)
         label.setAlignment(Qt.AlignCenter)
         label.setStyleSheet("font-weight: bold;")
         finger_layout.addWidget(label)
         
-        # 创建点阵部件
+        # Create dot matrix widget
         matrix = DotMatrixWidget()
         finger_layout.addWidget(matrix, 0, Qt.AlignCenter)
         
@@ -188,19 +188,19 @@ class MatrixDisplayWidget(QWidget):
         return finger_frame
         
     def update_matrix_data(self, finger_name, data):
-        """更新指定手指的点阵数据"""
+        """Update dot matrix data for specified finger"""
         if finger_name in self.finger_matrices:
-            # 处理 numpy 数组或普通列表
+            # Handle numpy array or normal list
             if data is not None:
                 try:
-                    # 如果数据是 numpy 数组，先转换为列表
+                    # If data is numpy array, convert to list first
                     if hasattr(data, 'tolist'):
                         data = data.tolist()
                     
-                    # 展平数据（如果数据是二维列表或二维数组）
+                    # Flatten data (if data is 2D list or 2D array)
                     if data and (isinstance(data[0], list) or 
                             (hasattr(data, 'ndim') and data.ndim > 1)):
-                        # 如果是二维结构，展平为一维
+                        # If 2D structure, flatten to 1D
                         flattened = []
                         for item in data:
                             if isinstance(item, (list, tuple)) or (hasattr(item, '__iter__') and not isinstance(item, str)):
@@ -208,30 +208,30 @@ class MatrixDisplayWidget(QWidget):
                             else:
                                 flattened.append(item)
                     else:
-                        # 如果已经是一维，直接使用
+                        # If already 1D, use directly
                         flattened = data
                         
                     self.finger_matrices[finger_name].set_data(flattened)
                 except Exception as e:
-                    print(f"处理矩阵数据时出错: {e}")
-                    # 出错时使用默认灰色点阵
+                    print(f"Error processing matrix data: {e}")
+                    # Use default gray matrix on error
                     default_data = [0] * 72
                     self.finger_matrices[finger_name].set_data(default_data)
             else:
-                # 数据为空时使用默认灰色点阵
+                # Use default gray matrix when data is empty
                 default_data = [0] * 72
                 self.finger_matrices[finger_name].set_data(default_data)
             
     def initialize_default_matrices(self):
-        """初始化显示默认点阵（所有点为灰色）"""
-        default_data = [0] * 72  # 12x6的全0矩阵
+        """Initialize display with default matrix (all dots gray)"""
+        default_data = [0] * 72  # 12x6 zero matrix
         for finger_name in self.finger_matrices.keys():
             self.finger_matrices[finger_name].set_data(default_data)
 
 class HandApiManager(QObject):
-    """手部API管理器，处理与LinkerHandApi的通信"""
-    status_updated = pyqtSignal(str, str)  # 状态类型, 消息内容
-    matrix_data_updated = pyqtSignal(dict)  # 矩阵数据更新信号
+    """Hand API Manager, handles communication with LinkerHandApi"""
+    status_updated = pyqtSignal(str, str)  # Status type, Message content
+    matrix_data_updated = pyqtSignal(dict)  # Matrix data update signal
 
     def __init__(self):
         super().__init__()
@@ -239,19 +239,19 @@ class HandApiManager(QObject):
         self.hand_type = None
         self.api = None
         self._init_linker_hand_type()
-        # 初始化API
+        # Initialize API
         self.init_api()
         
-        # 矩阵数据更新定时器
+        # Matrix data update timer
         self.matrix_timer = QTimer(self)
         self.matrix_timer.timeout.connect(self.update_matrix_data)
-        self.matrix_timer.start(500)  # 每500ms更新一次矩阵数据
+        self.matrix_timer.start(500)  # Update matrix data every 500ms
         self.lock = False
 
     def _init_linker_hand_type(self):
         try:
-            self.yaml = LoadWriteYaml() # 初始化配置文件
-            # 读取配置文件
+            self.yaml = LoadWriteYaml() # Initialize configuration file
+            # Read configuration file
             self.setting = self.yaml.load_setting_yaml()
             time.sleep(1)
             self.left_hand = False
@@ -260,7 +260,7 @@ class HandApiManager(QObject):
                 self.left_hand = True
             elif self.setting['LINKER_HAND']['RIGHT_HAND']['EXISTS'] == True:
                 self.right_hand = True
-            # gui控制只支持单手，这里进行左右手互斥
+            # GUI control only supports single hand, mutual exclusion for left/right hand here
             if self.left_hand == True and self.right_hand == True:
                 self.left_hand = True
                 self.right_hand = False
@@ -279,30 +279,30 @@ class HandApiManager(QObject):
                 self.can = self.setting['LINKER_HAND']['RIGHT_HAND']['CAN']
                 self.modbus = self.setting['LINKER_HAND']['RIGHT_HAND']['MODBUS']
         except Exception as e:
-            ColorMsg(msg=f"Error 配置文件读取失败: {str(e)}", color="red")
-            self.status_updated.emit("error", f"配置文件读取失败: {str(e)}")
-        ColorMsg(msg=f"当前配置为:Linker Hand {self.hand_type} {self.hand_joint} 压感:{self.is_touch} modbus:{self.modbus} CAN:{self.can}", color="green")
+            ColorMsg(msg=f"Error Failed to read config file: {str(e)}", color="red")
+            self.status_updated.emit("error", f"Failed to read config file: {str(e)}")
+        ColorMsg(msg=f"Current config: Linker Hand {self.hand_type} {self.hand_joint} Pressure Sensor:{self.is_touch} modbus:{self.modbus} CAN:{self.can}", color="green")
 
     def init_api(self):
-        """初始化LinkerHandApi"""
+        """Initialize LinkerHandApi"""
         try:
             self.api = LinkerHandApi(hand_joint=self.hand_joint, hand_type=self.hand_type, modbus=self.modbus, can=self.can)
-            self.status_updated.emit("info", f"手部API初始化成功: {self.hand_type} {self.hand_joint}")
+            self.status_updated.emit("info", f"Hand API initialized successfully: {self.hand_type} {self.hand_joint}")
         except Exception as e:
-            self.status_updated.emit("error", f"API初始化失败: {str(e)}")
+            self.status_updated.emit("error", f"API initialization failed: {str(e)}")
             raise
 
     def update_matrix_data(self):
-        """更新矩阵数据"""
+        """Update matrix data"""
         if not self.api:
             return
             
         try:
-            # 获取矩阵触摸数据
+            # Get matrix touch data
             matrix_data = {}
-            # 根据手部型号获取相应的矩阵数据
+            # Get corresponding matrix data based on hand model
             if self.is_touch == True and self.lock == False:
-                # 获取各个手指的矩阵触摸数据
+                # Get matrix touch data for each finger
                 thumb_data = self.api.get_thumb_matrix_touch()
                 index_data = self.api.get_index_matrix_touch()
                 middle_data = self.api.get_middle_matrix_touch()
@@ -316,11 +316,11 @@ class HandApiManager(QObject):
                     "little_matrix": little_data
                 }
                 
-                # 发送矩阵数据更新信号
+                # Emit matrix data update signal
                 self.matrix_data_updated.emit(matrix_data)
                 
         except Exception as e:
-            # 如果获取数据失败，发送空数据
+            # If data retrieval fails, send empty data
             default_data = [0] * 72
             matrix_data = {
                 "thumb_matrix": default_data,
@@ -332,24 +332,24 @@ class HandApiManager(QObject):
             self.matrix_data_updated.emit(matrix_data)
 
     def publish_joint_state(self, positions: List[int]):
-        """发布关节状态消息"""
+        """Publish joint state message"""
         if not self.api:
-            self.status_updated.emit("error", "手部API未初始化")
+            self.status_updated.emit("error", "Hand API not initialized")
             return
             
         try:
             self.lock = True
-            # 调用API发送关节位置
+            # Call API to send joint positions
             self.api.finger_move(positions)
-            self.status_updated.emit("info", "关节状态已发送")
+            self.status_updated.emit("info", "Joint state sent")
         except Exception as e:
-            self.status_updated.emit("error", f"发送失败: {str(e)}")
+            self.status_updated.emit("error", f"Send failed: {str(e)}")
         self.lock = False
 
     def publish_speed(self, val: int):
-        """发布速度设置"""
+        """Publish speed setting"""
         if not self.api:
-            self.status_updated.emit("error", "手部API未初始化")
+            self.status_updated.emit("error", "Hand API not initialized")
             return
             
         try:
@@ -366,15 +366,15 @@ class HandApiManager(QObject):
             speed_values = [val] * joint_len
             self.api.set_speed(speed_values)
             
-            self.status_updated.emit("info", f"速度已设为 {speed_values}")
-            print(f"速度值：{speed_values}", flush=True)
+            self.status_updated.emit("info", f"Speed set to {speed_values}")
+            print(f"Speed values: {speed_values}", flush=True)
         except Exception as e:
-            self.status_updated.emit("error", f"速度设置失败: {str(e)}")
+            self.status_updated.emit("error", f"Failed to set speed: {str(e)}")
 
     def publish_torque(self, val: int):
-        """发布扭矩设置"""
+        """Publish torque setting"""
         if not self.api:
-            self.status_updated.emit("error", "手部API未初始化")
+            self.status_updated.emit("error", "Hand API not initialized")
             return
             
         try:
@@ -391,60 +391,60 @@ class HandApiManager(QObject):
             torque_values = [val] * joint_len
             self.api.set_torque(torque_values)
             
-            self.status_updated.emit("info", f"扭矩已设为 {torque_values}")
-            print(f"扭矩值：{torque_values}", flush=True)
+            self.status_updated.emit("info", f"Torque set to {torque_values}")
+            print(f"Torque values: {torque_values}", flush=True)
         except Exception as e:
-            self.status_updated.emit("error", f"扭矩设置失败: {str(e)}")
+            self.status_updated.emit("error", f"Failed to set torque: {str(e)}")
 
     def shutdown(self):
-        """关闭API连接"""
+        """Close API connection"""
         if self.api:
             try:
                 self.api.close_can()
-                self.status_updated.emit("info", "API连接已关闭")
+                self.status_updated.emit("info", "API connection closed")
             except Exception as e:
-                self.status_updated.emit("error", f"API关闭失败: {str(e)}")
+                self.status_updated.emit("error", f"Failed to close API: {str(e)}")
         if self.matrix_timer.isActive():
             self.matrix_timer.stop()
 
 class HandControlGUI(QWidget):
-    """灵巧手控制界面"""
-    status_updated = pyqtSignal(str, str)  # 状态类型, 消息内容
+    """Dexterous Hand Control Interface"""
+    status_updated = pyqtSignal(str, str)  # Status type, Message content
 
     def __init__(self, api_manager: HandApiManager):
         super().__init__()
         
-        # 循环控制变量
-        self.cycle_timer = None  # 循环定时器
-        self.current_action_index = -1  # 当前动作索引
-        self.preset_buttons = []  # 存储预设动作按钮引用
+        # Loop control variables
+        self.cycle_timer = None  # Loop timer
+        self.current_action_index = -1  # Current action index
+        self.preset_buttons = []  # Store preset action button references
         
-        # 设置API管理器
+        # Set API manager
         self.api_manager = api_manager
         self.api_manager.status_updated.connect(self.update_status)
         self.api_manager.matrix_data_updated.connect(self.update_matrix_display)
         
-        # 获取手部配置
+        # Get hand configuration
         self.hand_joint = self.api_manager.hand_joint
         self.hand_type = self.api_manager.hand_type
         self.hand_config = _HAND_CONFIGS[self.hand_joint]
         
-        # 初始化UI
+        # Initialize UI
         self.init_ui()
         
-        # 设置定时器发布关节状态
+        # Set timer to publish joint state
         self.publish_timer = QTimer(self)
-        self.publish_timer.setInterval(30)  # 10Hz发布频率
+        self.publish_timer.setInterval(30)  # 10Hz publish frequency
         self.publish_timer.timeout.connect(self.publish_joint_state)
         self.publish_timer.start()
 
     def init_ui(self):
-        """初始化用户界面"""
-        # 设置窗口属性
-        self.setWindowTitle(f'灵巧手控制界面 - {self.hand_type} {self.hand_joint}')
+        """Initialize User Interface"""
+        # Set window properties
+        self.setWindowTitle(f'Dexterous Hand Control Interface - {self.hand_type} {self.hand_joint}')
         self.setMinimumSize(1200, 900)
         
-        # 设置样式
+        # Set styles
         self.setStyleSheet("""
             QWidget {
                 font-family: 'Microsoft YaHei', 'SimHei', sans-serif;
@@ -526,7 +526,7 @@ class HandControlGUI(QWidget):
                 background-color: #FFF0F0;
                 color: #CC0000;
             }
-            /* 数值显示面板样式 */
+            /* Value display panel style */
             QTextEdit#ValueDisplay {
                 background-color: #F8F8F8;
                 border: 1px solid #CCCCCC;
@@ -537,48 +537,48 @@ class HandControlGUI(QWidget):
             }
         """)
         
-        # 创建主垂直布局
+        # Create main vertical layout
         main_layout = QVBoxLayout(self)
         
-        # 创建水平分割器（原有三个面板）
+        # Create horizontal splitter (originally three panels)
         splitter = QSplitter(Qt.Horizontal)
         
-        # 创建左侧关节控制面板
+        # Create left joint control panel
         self.joint_control_panel = self.create_joint_control_panel()
         splitter.addWidget(self.joint_control_panel)
         
-        # 创建中间预设动作面板
+        # Create middle preset actions panel
         self.preset_actions_panel = self.create_preset_actions_panel()
         splitter.addWidget(self.preset_actions_panel)
         
-        # 创建右侧状态监控面板
+        # Create right status monitor panel
         self.status_monitor_panel = self.create_status_monitor_panel()
         splitter.addWidget(self.status_monitor_panel)
         
-        # 设置分割器比例
+        # Set splitter sizes
         splitter.setSizes([500, 300, 400])
         
-        # 添加分割器到主布局，并设置拉伸因子为1（可伸缩）
+        # Add splitter to main layout, set stretch factor to 1 (resizable)
         main_layout.addWidget(splitter, stretch=1)
         
-        # 创建并添加数值显示面板，设置拉伸因子为0（不可伸缩）
+        # Create and add value display panel, set stretch factor to 0 (non-resizable)
         self.value_display_panel = self.create_value_display_panel()
         main_layout.addWidget(self.value_display_panel, stretch=0)
         
-        # 初始更新数值显示
+        # Initial update of value display
         self.update_value_display()
 
     def create_joint_control_panel(self):
-        """创建关节控制面板"""
+        """Create Joint Control Panel"""
         panel = QWidget()
         layout = QVBoxLayout(panel)
         
-        # 创建标题
-        title_label = QLabel(f"关节控制 - {self.hand_joint}")
+        # Create title
+        title_label = QLabel(f"Joint Control - {self.hand_joint}")
         title_label.setFont(QFont("Microsoft YaHei", 14, QFont.Bold))
         layout.addWidget(title_label)
 
-        # 创建滑动条滚动区域
+        # Create slider scroll area
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setFrameShape(QFrame.NoFrame)
@@ -587,7 +587,7 @@ class HandControlGUI(QWidget):
         self.sliders_layout = QGridLayout(scroll_content)
         self.sliders_layout.setSpacing(10)
         
-        # 创建滑动条
+        # Create sliders
         self.create_joint_sliders()
         
         scroll_area.setWidget(scroll_content)
@@ -596,25 +596,25 @@ class HandControlGUI(QWidget):
         return panel
 
     def create_joint_sliders(self):
-        """创建关节滑动条"""
-        # 清除现有滑动条
+        """Create joint sliders"""
+        # Clear existing sliders
         for i in reversed(range(self.sliders_layout.count())):
             item = self.sliders_layout.itemAt(i)
             if item.widget():
                 item.widget().deleteLater()
         
-        # 创建新滑动条
+        # Create new sliders
         self.sliders = []
         self.slider_labels = []
         
         for i, (name, value) in enumerate(zip(
             self.hand_config.joint_names, self.hand_config.init_pos
         )):
-            # 创建标签
+            # Create label
             label = QLabel(f"{name}: {value}")
             label.setMinimumWidth(120)
             
-            # 创建滑动条
+            # Create slider
             slider = QSlider(Qt.Horizontal)
             slider.setRange(0, 255)
             slider.setValue(value)
@@ -622,7 +622,7 @@ class HandControlGUI(QWidget):
                 lambda val, idx=i: self.on_slider_value_changed(idx, val)
             )
             
-            # 添加到布局
+            # Add to layout
             row, col = divmod(i, 1)
             self.sliders_layout.addWidget(label, row, 0)
             self.sliders_layout.addWidget(slider, row, 1)
@@ -631,34 +631,34 @@ class HandControlGUI(QWidget):
             self.slider_labels.append(label)
 
     def create_preset_actions_panel(self):
-        """创建预设动作面板"""
+        """Create Preset Actions Panel"""
         panel = QWidget()
         layout = QVBoxLayout(panel)
         
-        # 系统预设动作
-        sys_preset_group = QGroupBox("系统预设")
+        # System Presets
+        sys_preset_group = QGroupBox("System Presets")
         sys_preset_layout = QGridLayout(sys_preset_group)
         sys_preset_layout.setSpacing(8)
         
-        # 添加系统预设动作按钮
+        # Add system preset action buttons
         self.create_system_preset_buttons(sys_preset_layout)
         layout.addWidget(sys_preset_group)
         
-        # 添加动作按钮
+        # Add action buttons
         actions_layout = QHBoxLayout()
         
-        # 添加循环运行按钮
-        self.cycle_button = QPushButton("循环预设动作")
+        # Add cycle run button
+        self.cycle_button = QPushButton("Cycle Preset Actions")
         self.cycle_button.setProperty("category", "action")
         self.cycle_button.clicked.connect(self.on_cycle_clicked)
         actions_layout.addWidget(self.cycle_button)
         
-        self.home_button = QPushButton("回到初始位置")
+        self.home_button = QPushButton("Return to Home")
         self.home_button.setProperty("category", "action")
         self.home_button.clicked.connect(self.on_home_clicked)
         actions_layout.addWidget(self.home_button)
         
-        self.stop_button = QPushButton("停止所有动作")
+        self.stop_button = QPushButton("Stop All Actions")
         self.stop_button.setProperty("category", "danger")
         self.stop_button.clicked.connect(self.on_stop_clicked)
         actions_layout.addWidget(self.stop_button)
@@ -668,8 +668,8 @@ class HandControlGUI(QWidget):
         return panel
 
     def create_system_preset_buttons(self, parent_layout):
-        """创建系统预设动作按钮"""
-        self.preset_buttons = []  # 清空按钮列表
+        """Create system preset action buttons"""
+        self.preset_buttons = []  # Clear button list
         if self.hand_config.preset_actions:
             buttons = []
             for idx, (name, positions) in enumerate(self.hand_config.preset_actions.items()):
@@ -679,31 +679,31 @@ class HandControlGUI(QWidget):
                     lambda checked, pos=positions: self.on_preset_action_clicked(pos)
                 )
                 buttons.append(button)
-                self.preset_buttons.append(button)  # 保存按钮引用
+                self.preset_buttons.append(button)  # Store button references
                 
-            # 添加到网格布局
+            # Add to grid layout
             cols = 2
             for i, button in enumerate(buttons):
                 row, col = divmod(i, cols)
                 parent_layout.addWidget(button, row, col)
 
     def create_status_monitor_panel(self):
-        """创建状态监控面板"""
+        """Create Status Monitor Panel"""
         panel = QWidget()
         layout = QVBoxLayout(panel)
 
-        # 标题
-        title_label = QLabel("状态监控")
+        # Title
+        title_label = QLabel("Status Monitor")
         title_label.setFont(QFont("Microsoft YaHei", 14, QFont.Bold))
         layout.addWidget(title_label)
 
-        # 快速设置
-        quick_set_gb = QGroupBox("快速设置")
+        # Quick Settings
+        quick_set_gb = QGroupBox("Quick Settings")
         qv_layout = QVBoxLayout(quick_set_gb)
 
-        # 速度行
+        # Speed Row
         speed_hbox = QHBoxLayout()
-        speed_hbox.addWidget(QLabel("速度:"))
+        speed_hbox.addWidget(QLabel("Speed:"))
         self.speed_slider = QSlider(Qt.Horizontal)
         self.speed_slider.setRange(0, 255)
         self.speed_slider.setValue(255)
@@ -712,20 +712,20 @@ class HandControlGUI(QWidget):
         self.speed_val_lbl = QLabel("255")
         self.speed_val_lbl.setMinimumWidth(30)
         speed_hbox.addWidget(self.speed_val_lbl)
-        self.speed_btn = QPushButton("设置速度")
+        self.speed_btn = QPushButton("Set Speed")
         self.speed_btn.clicked.connect(
             lambda: (
                 self.api_manager.publish_speed(self.speed_slider.value()),
                 self.status_updated.emit(
-                    "info", f"速度已设为 {self.speed_slider.value()}")
+                    "info", f"Speed set to {self.speed_slider.value()}")
             ))
         speed_hbox.addWidget(self.speed_btn)
         speed_hbox.addStretch()
         qv_layout.addLayout(speed_hbox)
 
-        # 扭矩行
+        # Torque Row
         torque_hbox = QHBoxLayout()
-        torque_hbox.addWidget(QLabel("扭矩:"))
+        torque_hbox.addWidget(QLabel("Torque:"))
         self.torque_slider = QSlider(Qt.Horizontal)
         self.torque_slider.setRange(0, 255)
         self.torque_slider.setValue(255)
@@ -734,12 +734,12 @@ class HandControlGUI(QWidget):
         self.torque_val_lbl = QLabel("255")
         self.torque_val_lbl.setMinimumWidth(30)
         torque_hbox.addWidget(self.torque_val_lbl)
-        self.torque_btn = QPushButton("设置扭矩")
+        self.torque_btn = QPushButton("Set Torque")
         self.torque_btn.clicked.connect(
             lambda: (
                 self.api_manager.publish_torque(self.torque_slider.value()),
                 self.status_updated.emit(
-                    "info", f"扭矩已设为 {self.torque_slider.value()}")
+                    "info", f"Torque set to {self.torque_slider.value()}")
             ))
         torque_hbox.addWidget(self.torque_btn)
         torque_hbox.addStretch()
@@ -747,25 +747,25 @@ class HandControlGUI(QWidget):
 
         layout.addWidget(quick_set_gb)
 
-        # 标签页部分
+        # Tab Widget Section
         tab_widget = QTabWidget()
 
-        # 系统信息标签页
+        # System Info Tab
         sys_info_widget = QWidget()
         sys_info_layout = QVBoxLayout(sys_info_widget)
 
-        conn_group = QGroupBox("连接状态")
+        conn_group = QGroupBox("Connection Status")
         conn_layout = QVBoxLayout(conn_group)
-        self.connection_status = QLabel("手部API已连接")
+        self.connection_status = QLabel("Hand API Connected")
         self.connection_status.setObjectName("StatusLabel")
         self.connection_status.setObjectName("StatusInfo")
         conn_layout.addWidget(self.connection_status)
 
-        hand_info_group = QGroupBox("手部信息")
+        hand_info_group = QGroupBox("Hand Info")
         hand_info_layout = QVBoxLayout(hand_info_group)
-        info_text = f"""手部类型: {self.hand_type}
-关节型号: {self.hand_joint}
-关节数量: {len(self.hand_config.joint_names)}"""
+        info_text = f"""Hand Type: {self.hand_type}
+Joint Model: {self.hand_joint}
+Joint Count: {len(self.hand_config.joint_names)}"""
         self.hand_info_label = QLabel(info_text)
         self.hand_info_label.setWordWrap(True)
         hand_info_layout.addWidget(self.hand_info_label)
@@ -773,33 +773,33 @@ class HandControlGUI(QWidget):
         sys_info_layout.addWidget(conn_group)
         sys_info_layout.addWidget(hand_info_group)
         
-        # 添加矩阵热力图显示
-        matrix_group = QGroupBox("手指矩阵热力图")
+        # Add matrix heatmap display
+        matrix_group = QGroupBox("Finger Matrix Heatmap")
         matrix_layout = QVBoxLayout(matrix_group)
         self.matrix_display = MatrixDisplayWidget()
         matrix_layout.addWidget(self.matrix_display)
         sys_info_layout.addWidget(matrix_group)
 
         sys_info_layout.addStretch()
-        tab_widget.addTab(sys_info_widget, "系统信息")
+        tab_widget.addTab(sys_info_widget, "System Info")
 
-        # 状态日志标签页
+        # Status Log Tab
         log_widget = QWidget()
         log_layout = QVBoxLayout(log_widget)
-        self.status_log = QLabel("等待系统启动...")
+        self.status_log = QLabel("Waiting for system startup...")
         self.status_log.setObjectName("StatusLabel")
         self.status_log.setObjectName("StatusInfo")
         self.status_log.setWordWrap(True)
         self.status_log.setMinimumHeight(300)
         log_layout.addWidget(self.status_log)
-        clear_log_btn = QPushButton("清除日志")
+        clear_log_btn = QPushButton("Clear Log")
         clear_log_btn.clicked.connect(self.clear_status_log)
         log_layout.addWidget(clear_log_btn)
-        tab_widget.addTab(log_widget, "状态日志")
+        tab_widget.addTab(log_widget, "Status Log")
 
         layout.addWidget(tab_widget)
 
-        # 实时更新滑块值
+        # Real-time slider value update
         self.speed_slider.valueChanged.connect(
             lambda v: self.speed_val_lbl.setText(str(v)))
         self.torque_slider.valueChanged.connect(
@@ -807,11 +807,11 @@ class HandControlGUI(QWidget):
         return panel
 
     def create_value_display_panel(self):
-        """创建滑动条数值显示面板"""
-        panel = QGroupBox("关节数值列表")
+        """Create slider value display panel"""
+        panel = QGroupBox("Joint Value List")
         layout = QVBoxLayout(panel)
         
-        # 设置布局上下间隔为20像素
+        # Set layout vertical margins to 20 pixels
         layout.setContentsMargins(10, 20, 10, 20)
         
         self.value_display = QTextEdit()
@@ -826,114 +826,114 @@ class HandControlGUI(QWidget):
         return panel
 
     def update_matrix_display(self, matrix_data):
-        """更新矩阵显示"""
+        """Update Matrix Display"""
         for finger_name, data in matrix_data.items():
             self.matrix_display.update_matrix_data(finger_name, data)
 
     def on_slider_value_changed(self, index: int, value: int):
-        """滑动条值改变事件处理"""
+        """Slider value changed event handler"""
         if 0 <= index < len(self.slider_labels):
             joint_name = self.hand_config.joint_names[index]
             self.slider_labels[index].setText(f"{joint_name}: {value}")
             
-        # 更新数值显示
+        # Update value display
         self.update_value_display()
 
     def update_value_display(self):
-        """更新数值显示面板内容"""
+        """Update value display panel content"""
         values = [slider.value() for slider in self.sliders]
         self.value_display.setText(f"{values}")
 
     def on_preset_action_clicked(self, positions: List[int]):
-        """预设动作按钮点击事件处理"""
+        """Preset action button click event handler"""
         if len(positions) != len(self.sliders):
             QMessageBox.warning(
-                self, "动作不匹配", 
-                f"预设动作关节数量({len(positions)})与当前关节数量({len(self.sliders)})不匹配"
+                self, "Action Mismatch", 
+                f"Preset action joint count ({len(positions)}) does not match current joint count ({len(self.sliders)})"
             )
             return
             
-        # 更新滑动条
+        # Update sliders
         for i, (slider, pos) in enumerate(zip(self.sliders, positions)):
             slider.setValue(pos)
             self.on_slider_value_changed(i, pos)
             
-        # 发布关节状态
+        # Publish joint state
         self.publish_joint_state()
 
     def on_home_clicked(self):
-        """回到初始位置按钮点击事件处理"""
+        """Return to Home button click event handler"""
         for slider, pos in zip(self.sliders, self.hand_config.init_pos):
             slider.setValue(pos)
             
         self.publish_joint_state()
-        self.status_updated.emit("info", "回到初始位置")
+        self.status_updated.emit("info", "Return to Home")
         
-        # 更新数值显示
+        # Update value display
         self.update_value_display()
 
     def on_stop_clicked(self):
-        """停止所有动作按钮点击事件处理"""
-        # 停止循环定时器
+        """Stop All Actions button click event handler"""
+        # Stop cycle timer
         if self.cycle_timer and self.cycle_timer.isActive():
             self.cycle_timer.stop()
             self.cycle_timer = None
-            self.cycle_button.setText("循环预设动作")
+            self.cycle_button.setText("Cycle Preset Actions")
             self.reset_preset_buttons_color()
             
-        self.status_updated.emit("warning", "已停止所有动作")
+        self.status_updated.emit("warning", "All actions stopped")
 
     def on_cycle_clicked(self):
-        """循环运行预设动作按钮点击事件处理"""
+        """Cycle Preset Actions button click event handler"""
         if not self.hand_config.preset_actions:
-            QMessageBox.warning(self, "无预设动作", "当前手部型号没有预设动作可循环运行")
+            QMessageBox.warning(self, "No Preset Actions", "Current hand model has no preset actions to cycle")
             return
             
         if self.cycle_timer and self.cycle_timer.isActive():
-            # 停止循环
+            # Stop cycle
             self.cycle_timer.stop()
             self.cycle_timer = None
-            self.cycle_button.setText("循环预设动作")
+            self.cycle_button.setText("Cycle Preset Actions")
             self.reset_preset_buttons_color()
-            self.status_updated.emit("info", "已停止循环运行预设动作")
+            self.status_updated.emit("info", "Stopped cycling preset actions")
         else:
-            # 开始循环
+            # Start cycle
             self.current_action_index = -1
             self.cycle_timer = QTimer(self)
             self.cycle_timer.timeout.connect(self.run_next_action)
             self.cycle_timer.start(LOOP_TIME)
-            self.cycle_button.setText("停止循环运行")
-            self.status_updated.emit("info", "开始循环运行预设动作")
+            self.cycle_button.setText("Stop Cycling")
+            self.status_updated.emit("info", "Started cycling preset actions")
             self.run_next_action()
 
     def run_next_action(self):
-        """运行下一个预设动作"""
+        """Run next preset action"""
         if not self.hand_config.preset_actions:
             return
             
-        # 重置所有按钮颜色
+        # Reset all button colors
         self.reset_preset_buttons_color()
         
-        # 计算下一个动作索引
+        # Calculate next action index
         self.current_action_index = (self.current_action_index + 1) % len(self.hand_config.preset_actions)
         
-        # 获取下一个动作
+        # Get next action
         action_names = list(self.hand_config.preset_actions.keys())
         action_name = action_names[self.current_action_index]
         action_positions = self.hand_config.preset_actions[action_name]
         
-        # 执行动作
+        # Execute action
         self.on_preset_action_clicked(action_positions)
         
-        # 高亮当前动作按钮
+        # Highlight current action button
         if 0 <= self.current_action_index < len(self.preset_buttons):
             button = self.preset_buttons[self.current_action_index]
             button.setStyleSheet("background-color: green; color: white; border-color: #91D5FF;")
             
-        self.status_updated.emit("info", f"运行预设动作: {action_name}")
+        self.status_updated.emit("info", f"Running preset action: {action_name}")
 
     def reset_preset_buttons_color(self):
-        """重置所有预设按钮颜色"""
+        """Reset all preset button colors"""
         for button in self.preset_buttons:
             button.setStyleSheet("")
             button.setProperty("category", "preset")
@@ -941,19 +941,19 @@ class HandControlGUI(QWidget):
             button.style().polish(button)
 
     def publish_joint_state(self):
-        """发布当前关节状态"""
+        """Publish current joint state"""
         positions = [slider.value() for slider in self.sliders]
         self.api_manager.publish_joint_state(positions)
 
     def update_status(self, status_type: str, message: str):
-        """更新状态显示"""
-        # 更新连接状态
-        if status_type == "info" and "API初始化成功" in message:
-            self.connection_status.setText("手部API已连接")
+        """Update status display"""
+        # Update connection status
+        if status_type == "info" and "Hand API initialized successfully" in message:
+            self.connection_status.setText("Hand API Connected")
             self.connection_status.setObjectName("StatusLabel")
             self.connection_status.setObjectName("StatusInfo")
             
-        # 更新日志
+        # Update log
         current_time = time.strftime("%H:%M:%S")
         log_entry = f"[{current_time}] {message}\n"
         current_log = self.status_log.text()
@@ -963,7 +963,7 @@ class HandControlGUI(QWidget):
             
         self.status_log.setText(log_entry + current_log)
         
-        # 设置日志样式
+        # Set log style
         self.status_log.setObjectName("StatusLabel")
         if status_type == "error":
             self.status_log.setObjectName("StatusError")
@@ -971,13 +971,13 @@ class HandControlGUI(QWidget):
             self.status_log.setObjectName("StatusInfo")
 
     def clear_status_log(self):
-        """清除状态日志"""
-        self.status_log.setText("日志已清除")
+        """Clear status log"""
+        self.status_log.setText("Log cleared")
         self.status_log.setObjectName("StatusLabel")
         self.status_log.setObjectName("StatusInfo")
 
     def closeEvent(self, event):
-        """窗口关闭事件处理"""
+        """Window close event handler"""
         if self.cycle_timer and self.cycle_timer.isActive():
             self.cycle_timer.stop()
         if self.publish_timer and self.publish_timer.isActive():
@@ -986,33 +986,33 @@ class HandControlGUI(QWidget):
         super().closeEvent(event)
 
 def main():
-    """主函数"""
+    """Main function"""
     try:
-        # 创建Qt应用
+        # Create Qt application
         app = QApplication(sys.argv)
         
-        # 创建API管理器
+        # Create API manager
         api_manager = HandApiManager()
         
-        # 创建GUI
+        # Create GUI
         window = HandControlGUI(api_manager)
         
-        # 连接状态更新信号
+        # Connect status update signal
         api_manager.status_updated.connect(window.update_status)
         window.status_updated = api_manager.status_updated
         
-        # 显示窗口
+        # Show window
         window.show()
         
-        # 运行应用
+        # Run application
         exit_code = app.exec_()
         
-        # 清理
+        # Cleanup
         api_manager.shutdown()
             
         sys.exit(exit_code)
     except Exception as e:
-        print(f"应用程序启动失败: {str(e)}")
+        print(f"Application startup failed: {str(e)}")
         sys.exit(1)
 
 if __name__ == '__main__':

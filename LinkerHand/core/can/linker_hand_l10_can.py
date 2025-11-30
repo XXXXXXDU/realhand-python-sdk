@@ -414,16 +414,16 @@ class LinkerHandL10Can:
 
     def show_fun_table(self):
         # if len(data) != 8 or data[0] != 0x64:
-        #     raise ValueError("数据格式不正确")
+        #     raise ValueError("Incorrect data format")
         data = self.version
         result = {
-            "自由度": data[0],
-            "机械版本": data[1],
-            "版本序号": data[2],
-            "手方向": chr(data[3]),  # ASCII 转字符
-            "软件版本": f"V{data[4] >> 4}.{data[4] & 0x0F}",
-            "硬件版本": f"V{data[5] >> 4}.{data[5] & 0x0F}",
-            "修订标志": data[6],
+            "Degrees of Freedom": data[0],
+            "Mechanical Version": data[1],
+            "Version Serial Number": data[2],
+            "Hand Direction": chr(data[3]),  # ASCII to char
+            "Software Version": f"V{data[4] >> 4}.{data[4] & 0x0F}",
+            "Hardware Version": f"V{data[5] >> 4}.{data[5] & 0x0F}",
+            "Revision Flag": data[6],
             "set_position": "Y",
             "set_torque": "Y",
             "set_speed": "Y",
@@ -442,11 +442,11 @@ class LinkerHandL10Can:
         print(tabulate(table, tablefmt="grid"), flush=True)
 
 
-    # # 示例数据
+    # # Example data
     # data = [0x64, 0x15, 0x03, 0x0A, 0x4C, 0x11, 0x22, 0x01]
     # parsed = parse_version_data(data)
 
-    # # 打印结果
+    # # Print result
     # for k, v in parsed.items():
     #     print(f"{k}: {v}")
 

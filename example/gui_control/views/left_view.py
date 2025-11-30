@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt,pyqtSignal
 
 class LeftView(QWidget):
-    # 定义一个信号，当滑动条的值发生变化时发出该信号
+    # Define a signal to be emitted when the slider value changes
     slider_value_changed = pyqtSignal(dict)
     def __init__(self, joint_name=[],init_pos=[]):
         super().__init__()
@@ -15,20 +15,20 @@ class LeftView(QWidget):
 
     def init_view(self):
         main_layout = QVBoxLayout(self)
-        # 存储滑动条和标签
+        # Store sliders and labels
         self.sliders = []
         self.labels = []
-        # 创建滑动条
+        # Create sliders
         for i in range(len(self.joint_name)):
-            # 每个滑动条和标签的水平布局
+            # Horizontal layout for each slider and label
             slider_layout = QHBoxLayout()
-            # 标签显示滑动条的值
+            # Label displays the slider value
             label = QLabel(f"{self.joint_name[i]}: 255", self)
-            label.setFixedWidth(110)  # 设置固定宽度
+            label.setFixedWidth(110)  # Set fixed width
             self.labels.append(label)
             slider_layout.addWidget(label)
 
-            # 滑动条
+            # Slider
             slider = QSlider(Qt.Horizontal, self)
             slider.setRange(0, 255)
             slider.setValue(self.init_pos[i])
@@ -37,8 +37,8 @@ class LeftView(QWidget):
             self.sliders.append(slider)
             slider_layout.addWidget(slider)
             main_layout.addLayout(slider_layout)
-        # 创建开启/关闭按钮
-        self.toggle_button = QPushButton("已开启", self)
+        # Create Open/Close button
+        self.toggle_button = QPushButton("Opened", self)
         self.toggle_button.setCheckable(True)
         self.toggle_button.clicked.connect(self.toggle_button_clicked)
         main_layout.addWidget(self.toggle_button)
@@ -49,7 +49,7 @@ class LeftView(QWidget):
         sliders = self.findChildren(QSlider)
         for i, slider in enumerate(sliders):
             slider_values[i] = slider.value()
-        # 发出信号，传递滑动条的当前值
+        # Emit signal, passing the current value of the slider
         self.slider_value_changed.emit(slider_values)
         
         
@@ -59,18 +59,18 @@ class LeftView(QWidget):
                 self.sliders[i].setValue(value)
                 
     def get_slider_values(self):
-        """获取所有滑动条的值"""
+        """Get values of all sliders"""
         return [slider.value() for slider in self.sliders]
     def handle_button_click(self, text):
         print(f"Button clicked with text: {text}")
-        # 在这里处理按钮点击事件
+        # Handle button click event here
 
     def toggle_button_clicked(self):
         if self.toggle_button.isChecked():
-            self.toggle_button.setText("已关闭")
+            self.toggle_button.setText("Closed")
             self.is_open = False
-            # 在这里处理开启状态
+            # Handle open state
         else:
-            self.toggle_button.setText("已开启")
+            self.toggle_button.setText("Opened")
             self.is_open = True
-            # 在这里处理关闭状态
+            # Handle closed state
