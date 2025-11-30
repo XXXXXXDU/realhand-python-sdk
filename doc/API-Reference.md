@@ -1,11 +1,11 @@
 
 ---
 
-# Linker Hand Python API Documentation
+# Real Hand Python API Documentation
 
 ## API Overview
 
-This document provides a detailed overview of the Python API for the Linker Hand, including functions for controlling the hand's movements, retrieving sensor data, and setting operational parameters.
+This document provides a detailed overview of the Python API for the Real Hand, including functions for controlling the hand's movements, retrieving sensor data, and setting operational parameters.
 
 
 ## Public API
@@ -160,16 +160,16 @@ The following is a complete example code showing how to use the API described ab
 
 ```python
 
-from LinkerHand.linker_hand_api import LinkerHandApi
+from RealHand.real_hand_api import RealHandApi
 def main():
     # Initialize API. hand_type: left or right. hand_joint: L7, L10, L20, or L25
-    linker_hand = LinkerHandApi(hand_type="left", hand_joint="L10")
+    real_hand = RealHandApi(hand_type="left", hand_joint="L10")
     # Set finger speed
-    linker_hand.set_speed(speed=[120,200,200,200,200])
+    real_hand.set_speed(speed=[120,200,200,200,200])
     # Set hand torque
-    linker_hand.set_torque(torque=[200,200,200,200,200])
+    real_hand.set_torque(torque=[200,200,200,200,200])
     # Get current hand state
-    hand_state = linker_hand.get_state()
+    hand_state = real_hand.get_state()
     # Print state values
     print(hand_state)
 

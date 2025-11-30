@@ -2,7 +2,7 @@ import sapien.core as sapien
 
 import numpy as np
 
-class LinkerHandController:
+class RealHandController:
     def __init__(self, engine, scene, urdf_path,camera):
         self.engine = engine
         self.scene = scene
@@ -65,9 +65,9 @@ def main():
     # Add ground
     scene.add_ground(altitude=0.0)
 
-    # Create LinkerHandController instance
-    urdf_path = "urdf/linker_hand_l20_8_right.urdf"  # Replace with your URDF file path
-    hand_controller = LinkerHandController(engine, scene, urdf_path,camera)
+    # Create RealHandController instance
+    urdf_path = "urdf/real_hand_l20_8_right.urdf"  # Replace with your URDF file path
+    hand_controller = RealHandController(engine, scene, urdf_path,camera)
 
     # Set joint target positions
     hand_controller.set_joint_position("thumb_joint0", 0.5)  # Set thumb joint position

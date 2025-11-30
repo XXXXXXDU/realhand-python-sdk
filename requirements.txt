@@ -19,4 +19,6 @@ dm_control
 uvicorn
 matplotlib
 tabulate
-sapien==2.2.1
+sapien
+jinja2
+typeguard
