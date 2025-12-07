@@ -18,9 +18,9 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 target_dir = os.path.abspath(os.path.join(current_dir, "../.."))
 sys.path.append(target_dir)
 
-from LinkerHand.linker_hand_api import LinkerHandApi
-from LinkerHand.utils.load_write_yaml import LoadWriteYaml
-from LinkerHand.utils.color_msg import ColorMsg
+from RealHand.real_hand_api import RealHandApi
+from RealHand.utils.load_write_yaml import LoadWriteYaml
+from RealHand.utils.color_msg import ColorMsg
 
 
 LOOP_TIME = 1000 # Cycle action interval in milliseconds
@@ -229,7 +229,7 @@ class MatrixDisplayWidget(QWidget):
             self.finger_matrices[finger_name].set_data(default_data)
 
 class HandApiManager(QObject):
-    """Hand API Manager, handles communication with LinkerHandApi"""
+    """Hand API Manager, handles communication with RealHandApi"""
     status_updated = pyqtSignal(str, str)  # Status type, Message content
     matrix_data_updated = pyqtSignal(dict)  # Matrix data update signal
 
@@ -238,7 +238,7 @@ class HandApiManager(QObject):
         self.hand_joint = None
         self.hand_type = None
         self.api = None
-        self._init_linker_hand_type()
+        self._init_real_hand_type()
         # Initialize API
         self.init_api()
         
@@ -248,7 +248,7 @@ class HandApiManager(QObject):
         self.matrix_timer.start(500)  # Update matrix data every 500ms
         self.lock = False
 
-    def _init_linker_hand_type(self):
+    def _init_real_hand_type(self):
         try:
             self.yaml = LoadWriteYaml() # Initialize configuration file
             # Read configuration file
@@ -256,9 +256,9 @@ class HandApiManager(QObject):
             time.sleep(1)
             self.left_hand = False
             self.right_hand = False
-            if self.setting['LINKER_HAND']['LEFT_HAND']['EXISTS'] == True:
+            if self.setting['REAL_HAND']['LEFT_HAND']['EXISTS'] == True:
                 self.left_hand = True
-            elif self.setting['LINKER_HAND']['RIGHT_HAND']['EXISTS'] == True:
+            elif self.setting['REAL_HAND']['RIGHT_HAND']['EXISTS'] == True:
                 self.right_hand = True
             # GUI control only supports single hand, mutual exclusion for left/right hand here
             if self.left_hand == True and self.right_hand == True:
@@ -266,27 +266,27 @@ class HandApiManager(QObject):
                 self.right_hand = False
             if self.left_hand == True:
                 self.hand_exists = True
-                self.hand_joint = self.setting['LINKER_HAND']['LEFT_HAND']['JOINT']
+                self.hand_joint = self.setting['REAL_HAND']['LEFT_HAND']['JOINT']
                 self.hand_type = "left"
-                self.is_touch = self.setting['LINKER_HAND']['LEFT_HAND']['TOUCH']
-                self.can = self.setting['LINKER_HAND']['LEFT_HAND']['CAN']
-                self.modbus = self.setting['LINKER_HAND']['LEFT_HAND']['MODBUS']
+                self.is_touch = self.setting['REAL_HAND']['LEFT_HAND']['TOUCH']
+                self.can = self.setting['REAL_HAND']['LEFT_HAND']['CAN']
+                self.modbus = self.setting['REAL_HAND']['LEFT_HAND']['MODBUS']
             if self.right_hand == True:
                 self.hand_exists = True
-                self.hand_joint = self.setting['LINKER_HAND']['RIGHT_HAND']['JOINT']
+                self.hand_joint = self.setting['REAL_HAND']['RIGHT_HAND']['JOINT']
                 self.hand_type = "right"
-                self.is_touch = self.setting['LINKER_HAND']['RIGHT_HAND']['TOUCH']
-                self.can = self.setting['LINKER_HAND']['RIGHT_HAND']['CAN']
-                self.modbus = self.setting['LINKER_HAND']['RIGHT_HAND']['MODBUS']
+                self.is_touch = self.setting['REAL_HAND']['RIGHT_HAND']['TOUCH']
+                self.can = self.setting['REAL_HAND']['RIGHT_HAND']['CAN']
+                self.modbus = self.setting['REAL_HAND']['RIGHT_HAND']['MODBUS']
         except Exception as e:
             ColorMsg(msg=f"Error Failed to read config file: {str(e)}", color="red")
             self.status_updated.emit("error", f"Failed to read config file: {str(e)}")
-        ColorMsg(msg=f"Current config: Linker Hand {self.hand_type} {self.hand_joint} Pressure Sensor:{self.is_touch} modbus:{self.modbus} CAN:{self.can}", color="green")
+        ColorMsg(msg=f"Current config: Real Hand {self.hand_type} {self.hand_joint} Pressure Sensor:{self.is_touch} modbus:{self.modbus} CAN:{self.can}", color="green")
 
     def init_api(self):
-        """Initialize LinkerHandApi"""
+        """Initialize RealHandApi"""
         try:
-            self.api = LinkerHandApi(hand_joint=self.hand_joint, hand_type=self.hand_type, modbus=self.modbus, can=self.can)
+            self.api = RealHandApi(hand_joint=self.hand_joint, hand_type=self.hand_type, modbus=self.modbus, can=self.can)
             self.status_updated.emit("info", f"Hand API initialized successfully: {self.hand_type} {self.hand_joint}")
         except Exception as e:
             self.status_updated.emit("error", f"API initialization failed: {str(e)}")

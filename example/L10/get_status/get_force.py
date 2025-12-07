@@ -5,17 +5,17 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 target_dir = os.path.abspath(os.path.join(current_dir, "../../.."))
 sys.path.append(target_dir)
 
-from LinkerHand.linker_hand_api import LinkerHandApi
-from LinkerHand.utils.load_write_yaml import LoadWriteYaml
-from LinkerHand.utils.init_linker_hand import InitLinkerHand
-from LinkerHand.utils.color_msg import ColorMsg
+from RealHand.real_hand_api import RealHandApi
+from RealHand.utils.load_write_yaml import LoadWriteYaml
+from RealHand.utils.init_real_hand import InitRealHand
+from RealHand.utils.color_msg import ColorMsg
 
 class GetForce:
     def __init__(self,hand_joint="L10",hand_type="left"):
         self.hand_joint = hand_joint
         self.hand_type = hand_type
         self.touch_type = -1
-        self.hand = LinkerHandApi(hand_joint=self.hand_joint,hand_type=self.hand_type)
+        self.hand = RealHandApi(hand_joint=self.hand_joint,hand_type=self.hand_type)
         self.get_touch_type()
         self.get_force()
     

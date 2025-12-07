@@ -4,7 +4,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 target_dir = os.path.abspath(os.path.join(current_dir, "../../.."))
 sys.path.append(target_dir)
 import argparse
-from LinkerHand.linker_hand_api import LinkerHandApi
+from RealHand.real_hand_api import RealHandApi
 
 '''
 Dynamic grasping example.
@@ -22,7 +22,7 @@ python3 dynamic_grasping.py --hand_joint L10 --hand_type left --speed 20 50 50 5
 
 def main(args):
     # Initialize API
-    hand = LinkerHandApi(hand_joint=args.hand_joint,hand_type=args.hand_type)
+    hand = RealHandApi(hand_joint=args.hand_joint,hand_type=args.hand_type)
     # Set speed
     hand.set_speed(speed=args.speed)
     # Prepare grasping pose

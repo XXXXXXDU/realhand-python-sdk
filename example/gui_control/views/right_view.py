@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 current_dir = os.path.dirname(os.path.abspath(__file__))
 target_dir = os.path.abspath(os.path.join(current_dir, "../../.."))
 sys.path.append(target_dir)
-from LinkerHand.utils.load_write_yaml import LoadWriteYaml
+from RealHand.utils.load_write_yaml import LoadWriteYaml
 class RightView(QMainWindow):
     add_button_handle = pyqtSignal(str)  # Define a signal
     handle_button_click = pyqtSignal(str)  # Define a signal
