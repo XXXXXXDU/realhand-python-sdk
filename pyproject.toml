@@ -9,7 +9,7 @@ description = ""
 readme = "README.md"
 requires-python = ">=3.8"
 authors = [
-  { name = "SDSU_MVP_LAB", email = "SDSU_MVP_LAB@users.noreply.github.com" }
+  { name = "RealHand", email = "support@realhand.com" }
 ]
 license = { text = "MIT" }
 
