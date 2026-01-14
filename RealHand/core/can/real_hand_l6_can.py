@@ -14,13 +14,13 @@ class RealHandL6Can:
         self.baudrate = baudrate
         self.open_can = OpenCan(load_yaml=yaml)
 
-        self.x01 = [0] * 6 # 关节位置
-        self.x02 = [-1] * 6 # 转矩限制
-        self.x05 = [0] * 6 # 速度
-        self.x07 = [-1] * 6 # 加速度
-        self.x33 = [0] * 6 # 温度
-        self.x35 = [0] * 6 # 关节错误码
-        self.x36 = [-1] * 6 # 电流
+        self.x01 = [0] * 6 # Joint positions
+        self.x02 = [-1] * 6 # Torque limits
+        self.x05 = [0] * 6 # Speed
+        self.x07 = [-1] * 6 # Acceleration
+        self.x33 = [0] * 6 # Temperature
+        self.x35 = [0] * 6 # Joint error codes
+        self.x36 = [-1] * 6 # Current
         self.xb0,self.xb1,self.xb2,self.xb3,self.xb4,self.xb5 = [-1] * 5,[-1] * 5,[-1] * 5,[-1] * 5,[-1] * 5,[-1] * 5
 
         self.thumb_matrix = np.full((12, 6), -1)
@@ -65,45 +65,45 @@ class RealHandL6Can:
 
     def init_can_bus(self, channel, baudrate):
         """
-        尝试按优先级连接 CAN 总线，并实现回退机制。
+        Try connecting to the CAN bus by priority order, and implement a fallback mechanism.
         """
-        # --- 统一异常处理块开始 ---
+        # --- Unified exception handling block start ---
         try:
             if sys.platform == "linux":
-                # Linux 优先级：1. socketcan
+                # Linux priority: 1. socketcan
                 try:
                     self.open_can.open_can(self.can_channel)
-                    # 尝试 socketcan
+                    # Try socketcan
                     bus = can.interface.Bus(channel=channel, interface="socketcan", bitrate=baudrate)
-                    ColorMsg(msg=f"成功连接: interface='socketcan', channel='{channel}'", color="green")
+                    ColorMsg(msg=f"Connected successfully: interface='socketcan', channel='{channel}'", color="green")
                     return bus
                 except CanError as e:
-                    # 如果 socketcan 失败，可以考虑在这里尝试其他 Linux 接口 (如 'pcan')
-                    ColorMsg(msg=f"socketcan 接口连接失败: {e}", color="yellow")
-                    raise # 重新抛出异常，让外层 try 捕获
+                    # If socketcan fails, you can consider trying other Linux interfaces here (e.g. 'pcan')
+                    ColorMsg(msg=f"socketcan interface connection failed: {e}", color="yellow")
+                    raise # Re-raise the exception so the outer try can catch it
             elif sys.platform == "win32":
-                # Windows 优先级：1. pcan
+                # Windows priority: 1. pcan
                 try:
                     bus = can.interface.Bus(channel=channel, interface='pcan', bitrate=baudrate)
-                    ColorMsg(msg=f"成功连接: interface='pcan', channel='{channel}'", color="green")
+                    ColorMsg(msg=f"Connected successfully: interface='pcan', channel='{channel}'", color="green")
                     return bus
                 except CanError as e:
-                    ColorMsg(msg=f"pcan 接口连接失败，尝试回退到 'candle': {e}", color="yellow")
-                # Windows 优先级：2. candle (回退方法)
+                    ColorMsg(msg=f"pcan interface connection failed, trying fallback to 'candle': {e}", color="yellow")
+                # Windows priority: 2. candle (fallback method)
                 try:
                     bus = can.Bus(interface="candle", channel=channel, bitrate=baudrate)
-                    ColorMsg(msg=f"成功连接: interface='candle', channel='{channel}'", color="green")
+                    ColorMsg(msg=f"Connected successfully: interface='candle', channel='{channel}'", color="green")
                     return bus
                 except CanError as e:
-                    ColorMsg(msg=f"candle 接口连接失败: {e}", color="yellow")
-                    raise # 两个接口都失败，抛出异常
+                    ColorMsg(msg=f"candle interface connection failed: {e}", color="yellow")
+                    raise # Both interfaces failed, raise exception
             else:
                 raise EnvironmentError("Unsupported platform for CAN interface")
-        # --- 统一异常处理块结束 ---
+        # --- Unified exception handling block end ---
         except Exception as e:
-            # 如果任何一个接口尝试失败并抛出异常（包括 EnvironmentError）
-            ColorMsg(msg=f"致命错误：所有 CAN 接口连接尝试均失败或平台不受支持。请检查设备连接或驱动安装和配置文件中CAN参数的配置。\n错误详情: {e}", color="red")
-            # 保持 raise 动作，将错误信息传递给调用者，避免程序继续运行
+            # If any interface attempt fails and raises an exception (including EnvironmentError)
+            ColorMsg(msg=f"Fatal error: all CAN interface connection attempts failed or the platform is unsupported. Please check device connections or driver installation and the CAN parameter configuration in the config file.\nError details: {e}", color="red")
+            # Keep the raise behavior to pass the error to the caller and prevent the program from continuing
             raise
 
     def send_frame(self, frame_property, data_list,sleep=0.003):
@@ -222,7 +222,7 @@ class RealHandL6Can:
                 self.x33 = list(response_data)
             elif frame_type == 0x35: # L6 fault codes
                 self.x35 = list(response_data)
-            elif frame_type == 0x36: # L6 电流
+            elif frame_type == 0x36: # L6 current
                 self.x36 = list(response_data)
             elif frame_type == 0xb0:
                 self.xb0 = list(response_data)
@@ -297,7 +297,7 @@ class RealHandL6Can:
 
     def get_speed(self):
         #self.send_frame(0x05, [],sleep=0.003)
-        #print("L6暂不支持读取实时速度")
+        #print("L6 does not currently support reading real-time speed")
         return [0] * 6
 
     def get_current(self):
@@ -399,16 +399,16 @@ class RealHandL6Can:
     def get_serial_number(self):
         try:
             self.send_frame(0xC0,[],sleep=0.005)
-            # 1. 使用 bytes() 函数将整数列表转换为字节对象
-            #    bytes() 接收一个由 0-255 之间的整数组成的列表。
+            # 1. Use the bytes() function to convert an integer list into a bytes object
+            #    bytes() accepts a list of integers between 0 and 255.
             byte_data = bytes(self.serial_number)
-            # 2. 使用 .decode() 方法将字节对象解码为 ASCII 字符串
+            # 2. Use the .decode() method to decode the bytes object into an ASCII string
             result_string = byte_data.decode('ascii')
             if result_string == "":
                 return "-1"
             else:
-                # print(f"原始 ASCII 码列表: {self.serial_number}")
-                # print(f"解码后的字符串: {result_string}")
+                # print(f"Raw ASCII code list: {self.serial_number}")
+                # print(f"Decoded string: {result_string}")
                 return result_string
         except:
             return "-1"

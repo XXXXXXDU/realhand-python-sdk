@@ -33,8 +33,8 @@ class RealHandApi:
                 from core.rs485.real_hand_l6_rs485 import RealHandL6RS485
                 self.hand = RealHandL6RS485(hand_id=self.hand_id,modbus_port=modbus,baudrate=115200)
             else:
-                from core.can.real_hand_o6_can import RealHandO6Can
-                self.hand = RealHandO6Can(can_id=self.hand_id,can_channel=self.can, yaml=self.yaml)
+                from core.can.real_hand_l6_can import RealHandL6Can
+                self.hand = RealHandL6Can(can_id=self.hand_id,can_channel=self.can, yaml=self.yaml)
         if self.hand_joint == "L7":
             from core.can.real_hand_l7_can import RealHandL7Can
             self.hand = RealHandL7Can(can_id=self.hand_id,can_channel=self.can, yaml=self.yaml)
